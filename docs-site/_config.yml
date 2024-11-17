@@ -17,22 +17,50 @@ search:
 
 # Navigation structure
 nav:
-  - title: Getting Started
+  - title: Getting Started 
     url: /getting-started
-  - title: Features
+  - title: Core Features
     children:
-      - title: AI Workflow
-        url: /guides/ai-workflow
-      - title: Smart Checklists
-        url: /features/checklist
-      - title: Documentation
-        url: /features/documentation
-  - title: Commands
-    url: /commands
-  - title: Configuration
-    url: /configuration
-  - title: Templates
-    url: /templates
+      - title: Basic Workflow 
+        url: /features/basic-workflow
+      - title: Development Commands 
+        url: /features/commands
+      - title: Configuration 
+        url: /features/configuration
+      - title: Status Tracking 
+        url: /features/status
+  - title: Advanced Features
+    children:
+      - title: Code Operations 
+        url: /features/code-operations
+      - title: Exploration 
+        url: /features/exploration
+      - title: Interactive Guide 
+        url: /features/guide
+  - title: Planned Features 
+    children:
+      - title: Checklist Management
+        url: /planned/checklist
+      - title: AI Pattern Recognition
+        url: /planned/ai-patterns
+      - title: Team Collaboration
+        url: /planned/collaboration
+      - title: Project Templates
+        url: /planned/templates
+      - title: Integrations
+        url: /planned/integrations
+      - title: Security Features
+        url: /planned/security
+  - title: Reference
+    children:
+      - title: Commands Reference 
+        url: /reference/commands
+      - title: Configuration Reference 
+        url: /reference/configuration
+      - title: Best Practices 
+        url: /reference/best-practices
+      - title: Troubleshooting 
+        url: /reference/troubleshooting
   - title: GitHub
     url: https://github.com/carmelyne/ai-dev-workflow-cli
 
