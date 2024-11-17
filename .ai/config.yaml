@@ -10,6 +10,109 @@ project:
   framework: none
 
 development_workflow:
+  basic:
+    description: "Simple workflow for quick iterations"
+    steps:
+      1_branch:
+        description: "Create and switch to feature branch"
+        command: "git checkout -b ${branch_type}/${feature_name}"
+        branch_types: ["feature", "bugfix", "docs", "refactor"]
+      
+      2_development:
+        description: "Develop changes in branch"
+        guidelines:
+          - "Make focused changes"
+          - "Keep commits clean"
+          - "Update relevant documentation"
+      
+      3_documentation:
+        description: "Update documentation if needed"
+        files:
+          - "README.md"
+          - "docs-site/"
+          - "docs/"
+      
+      4_review:
+        description: "Push and create PR for CI testing"
+        steps:
+          - "git add relevant files"
+          - "git commit with clear message"
+          - "git push origin branch"
+          - "Create PR on GitHub"
+
+  advanced:
+    description: "Comprehensive workflow for major features"
+    steps:
+      1_user_story:
+        description: "Create user story in Gherkin format"
+        location: "docs/stories/${feature_name}.md"
+        template: |
+          Feature: ${feature_name}
+            As a ${user_type}
+            I want ${desired_action}
+            So that ${business_value}
+
+            Scenario: ${scenario_name}
+              Given ${precondition}
+              When ${action}
+              Then ${expected_result}
+
+            Acceptance Criteria:
+              - [ ] Criteria 1
+              - [ ] Criteria 2
+
+      2_branch_creation:
+        description: "Create feature branch"
+        command: "git checkout -b ${branch_type}/${feature_name}"
+        branch_types:
+          - "feature"
+          - "bugfix"
+          - "hotfix"
+          - "refactor"
+
+      3_documentation_first:
+        description: "Update documentation with planned changes"
+        files:
+          - "docs/technical/${feature_name}.md"
+          - "docs/api/${affected_endpoints}.md"
+          - "README.md"
+
+      4_implementation:
+        description: "Implement the feature"
+        guidelines:
+          - "Follow TypeScript best practices"
+          - "Write tests first"
+          - "Update documentation"
+          - "Consider CLI user experience"
+          - "Handle errors gracefully"
+
+      5_testing:
+        description: "Add and run tests"
+        types:
+          - name: "unit"
+            tool: "jest"
+            coverage: 80
+          - name: "integration"
+            tool: "jest"
+          - name: "e2e"
+            tool: "jest"
+
+      6_pr_creation:
+        description: "Create detailed pull request"
+        template: |
+          ## Changes
+          ${changes_description}
+
+          ## Testing
+          - [ ] Unit tests
+          - [ ] Integration tests
+          - [ ] Manual testing
+
+          ## Documentation
+          - [ ] API docs updated
+          - [ ] README updated
+          - [ ] Migration guide added
+
   feature_development:
     steps:
       1_user_story:
