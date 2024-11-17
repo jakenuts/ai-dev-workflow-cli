@@ -2,11 +2,17 @@ import { Command } from 'commander';
 import { loadConfig } from '../utils/config';
 import { prompt } from 'inquirer';
 import chalk from 'chalk';
+import { createWorkflowModuleCommands } from './workflow/modules';
 
 export function createWorkflowCommand() {
   const command = new Command('workflow');
   
+  // Add module management commands
+  command.addCommand(createWorkflowModuleCommands());
+  
+  // Original workflow following command
   command
+    .command('follow')
     .description('Follow a defined workflow process')
     .argument('[type]', 'Workflow type (basic or advanced)')
     .action(async (type?: string) => {
