@@ -4,6 +4,10 @@ A framework-agnostic tool that provides AI-guided development workflows and patt
 
 > 🚀 This project was developed using [Codeium's Windsurf](https://codeium.com/windsurf), the world's first agentic IDE that enables true AI-human collaboration.
 
+## Documentation
+
+📚 **[View the full documentation](https://carmelyne.github.io/ai-dev-workflow-cli)** for detailed guides, examples, and best practices.
+
 ## Features
 
 - 🤖 AI-guided development workflows
