@@ -1,5 +1,5 @@
 {
-  "name": "ai-dev-workflow",
+  "name": "ai-dev-workflow-cli",
   "version": "0.1.0",
   "description": "Framework-agnostic AI-guided development workflow tool",
   "main": "dist/index.js",

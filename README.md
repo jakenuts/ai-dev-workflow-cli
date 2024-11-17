@@ -1,4 +1,4 @@
-# AI Dev Workflow
+# AI Dev Workflow CLI
 
 A framework-agnostic tool that provides AI-guided development workflows and patterns. Works with your preferred AI assistant to streamline the development process.
 
@@ -15,12 +15,12 @@ A framework-agnostic tool that provides AI-guided development workflows and patt
 ## Installation
 
 ```bash
-npm install -g ai-dev-workflow
+npm install -g ai-dev-workflow-cli
 ```
 
 Or use directly with npx:
 ```bash
-npx ai-dev-workflow init
+npx ai-dev-workflow-cli init
 ```
 
 ## Usage

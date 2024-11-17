@@ -1,0 +1,120 @@
+# Default AI Workflow Configuration
+version: "1.0.0"
+
+project:
+  name: "ai-dev-workflow-cli"
+  type: "cli-tool"
+  description: "Framework-agnostic tool that provides AI-guided development workflows and patterns"
+  repository: "https://github.com/carmelyne/ai-dev-workflow-cli.git"
+  language: typescript
+  framework: none
+
+development_workflow:
+  feature_development:
+    steps:
+      1_user_story:
+        description: "Create user story in Gherkin format"
+        location: "docs/stories/${feature_name}.md"
+        template: |
+          Feature: ${feature_name}
+            As a ${user_type}
+            I want ${desired_action}
+            So that ${business_value}
+
+            Scenario: ${scenario_name}
+              Given ${precondition}
+              When ${action}
+              Then ${expected_result}
+
+            Acceptance Criteria:
+              - [ ] Criteria 1
+              - [ ] Criteria 2
+
+      2_branch_creation:
+        description: "Create feature branch"
+        command: "git checkout -b ${branch_type}/${feature_name}"
+        branch_types:
+          - "feature"
+          - "bugfix"
+          - "hotfix"
+          - "refactor"
+
+      3_documentation_first:
+        description: "Update documentation with planned changes"
+        files:
+          - "docs/technical/${feature_name}.md"
+          - "docs/api/${affected_endpoints}.md"
+          - "README.md"
+
+      4_implementation:
+        description: "Implement the feature"
+        guidelines:
+          - "Follow TypeScript best practices"
+          - "Write tests first"
+          - "Update documentation"
+          - "Consider CLI user experience"
+          - "Handle errors gracefully"
+
+      5_testing:
+        description: "Add and run tests"
+        types:
+          - name: "unit"
+            tool: "jest"
+            coverage: 80
+          - name: "integration"
+            tool: "jest"
+          - name: "e2e"
+            tool: "jest"
+
+      6_pr_creation:
+        description: "Create pull request"
+        template: |
+          ## Changes
+          ${changes_description}
+
+          ## Testing
+          - [ ] Unit tests
+          - [ ] Integration tests
+          - [ ] Manual testing
+
+          ## Documentation
+          - [ ] API docs updated
+          - [ ] README updated
+          - [ ] Migration guide added
+
+  versioning:
+    strategy: "semantic"
+    format: "v${major}.${minor}.${patch}"
+    rules:
+      major: "Breaking changes"
+      minor: "New features"
+      patch: "Bug fixes and minor changes"
+    branch_protection:
+      - "main"
+      - "release/*"
+
+  release_workflow:
+    steps:
+      1_version_bump:
+        description: "Update version numbers"
+        files:
+          - "package.json"
+          - "package-lock.json"
+          - "src/version.ts"
+
+patterns:
+  cli:
+    - name: "command-structure"
+      description: "Consistent command structure using Commander.js"
+    - name: "argument-handling"
+      description: "Robust argument validation and processing"
+    - name: "help-documentation"
+      description: "Clear and helpful CLI documentation"
+  
+  typescript:
+    - name: "strict-typing"
+      description: "Use strict TypeScript features"
+    - name: "interface-first"
+      description: "Design with interfaces before implementation"
+    - name: "dependency-injection"
+      description: "Use DI for better testing and modularity"
