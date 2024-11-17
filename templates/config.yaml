@@ -79,6 +79,70 @@ development_workflow:
           - [ ] README updated
           - [ ] Migration guide added
 
+  versioning:
+    strategy: "semantic"
+    format: "v${major}.${minor}.${patch}"
+    rules:
+      major: "Breaking changes"
+      minor: "New features"
+      patch: "Bug fixes and minor changes"
+    branch_protection:
+      - "main"
+      - "release/*"
+
+  release_workflow:
+    steps:
+      1_version_bump:
+        description: "Update version numbers"
+        files:
+          - "package.json"
+          - "package-lock.json"
+          - "src/version.ts"
+        
+      2_changelog:
+        description: "Update changelog"
+        template: |
+          # ${version} (${date})
+          
+          ## 🚀 Features
+          ${new_features}
+          
+          ## 🐛 Bug Fixes
+          ${bug_fixes}
+          
+          ## 📝 Documentation
+          ${documentation_updates}
+          
+          ## 🔨 Internal
+          ${internal_changes}
+
+      3_git_tag:
+        description: "Create and push git tag"
+        commands:
+          - "git tag -a ${version} -m 'Release ${version}'"
+          - "git push origin ${version}"
+
+      4_npm_publish:
+        description: "Publish to npm registry"
+        commands:
+          - "npm run build"
+          - "npm publish"
+          
+      5_github_release:
+        description: "Create GitHub release"
+        template:
+          title: "Release ${version}"
+          body: |
+            ## What's Changed
+            ${changelog}
+            
+            ## Installation
+            ```bash
+            npm install -g ai-dev-workflow-cli
+            ```
+            
+            For more information, see the [documentation](${docs_url}).
+
 patterns:
   - name: "documentation_first"
     description: "Write documentation before code"
