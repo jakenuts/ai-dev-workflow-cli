@@ -1,7 +1,6 @@
-remote_theme: just-the-docs/just-the-docs
-
 title: AI Dev Workflow CLI
-description: Framework-agnostic tool for AI-guided development workflows
+description: Framework-agnostic tool that provides AI-guided development workflows and patterns
+remote_theme: just-the-docs/just-the-docs
 baseurl: "/ai-dev-workflow-cli"
 url: "https://carmelyne.github.io"
 
@@ -16,7 +15,27 @@ search:
   rel_url: true
   button: true
 
-# Navigation
+# Navigation structure
+nav:
+  - title: Getting Started
+    url: /getting-started
+  - title: Features
+    children:
+      - title: AI Workflow
+        url: /guides/ai-workflow
+      - title: Smart Checklists
+        url: /features/checklist
+      - title: Documentation
+        url: /features/documentation
+  - title: Commands
+    url: /commands
+  - title: Configuration
+    url: /configuration
+  - title: Templates
+    url: /templates
+  - title: GitHub
+    url: https://github.com/carmelyne/ai-dev-workflow-cli
+
 nav_external_links:
   - title: View on GitHub
     url: https://github.com/carmelyne/ai-dev-workflow-cli

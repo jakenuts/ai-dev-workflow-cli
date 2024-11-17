@@ -82,6 +82,45 @@ development_workflow:
           - [ ] README updated
           - [ ] Migration guide added
 
+  documentation:
+    setup:
+      description: "Set up project documentation site"
+      steps:
+        1_structure:
+          description: "Create documentation structure"
+          directories:
+            - "docs-site/"
+            - "docs/technical/"
+            - "docs/api/"
+            - "docs/stories/"
+          
+        2_base_content:
+          description: "Create base documentation files"
+          files:
+            - path: "docs-site/index.md"
+              template: "storytelling"
+            - path: "docs-site/getting-started.md"
+              template: "guide"
+            - path: "docs-site/commands.md"
+              template: "reference"
+            - path: "docs-site/_config.yml"
+              template: "jekyll-config"
+
+        3_github_pages:
+          description: "Set up GitHub Pages"
+          workflow:
+            path: ".github/workflows/jekyll-gh-pages.yml"
+            type: "Jekyll"
+            source: "docs-site"
+            branch: "main"
+          
+        4_automation:
+          description: "Configure automatic deployments"
+          actions:
+            - "Enable GitHub Pages via API"
+            - "Set up branch protection"
+            - "Configure build triggers"
+
   versioning:
     strategy: "semantic"
     format: "v${major}.${minor}.${patch}"
@@ -103,6 +142,24 @@ development_workflow:
           - "src/version.ts"
 
 patterns:
+  documentation:
+    storytelling:
+      description: "Engaging, narrative documentation style"
+      elements:
+        - "User-focused scenarios"
+        - "Conversational tone"
+        - "Clear examples"
+        - "Progressive disclosure"
+      
+    structure:
+      description: "Standard documentation structure"
+      sections:
+        - "Quick Start"
+        - "User Guide"
+        - "API Reference"
+        - "Examples"
+        - "Contributing"
+
   cli:
     - name: "command-structure"
       description: "Consistent command structure using Commander.js"
@@ -110,7 +167,7 @@ patterns:
       description: "Robust argument validation and processing"
     - name: "help-documentation"
       description: "Clear and helpful CLI documentation"
-  
+    
   typescript:
     - name: "strict-typing"
       description: "Use strict TypeScript features"
@@ -118,3 +175,59 @@ patterns:
       description: "Design with interfaces before implementation"
     - name: "dependency-injection"
       description: "Use DI for better testing and modularity"
+
+templates:
+  checklist:
+    path: ".ai/templates/checklist.md"
+    variables:
+      - "branch_type"
+      - "feature_name"
+      - "coverage_target"
+      - "notes"
+      - "start_date"
+      - "last_updated"
+      - "status"
+    defaults:
+      coverage_target: 80
+      status: "In Progress"
+
+  documentation:
+    storytelling: |
+      # ${project_name}
+      
+      Ever wished you had ${problem_solution}? Meet ${project_name} - your ${project_description}.
+      
+      ## The Story
+      ${user_story}
+      
+      ## Features
+      ${features}
+      
+      ## Getting Started
+      ${quick_start}
+    
+    guide: |
+      # Getting Started with ${project_name}
+      
+      Welcome aboard! Let's get you set up with ${project_description}.
+      
+      ## Prerequisites
+      ${prerequisites}
+      
+      ## Installation
+      ${installation_steps}
+      
+      ## First Steps
+      ${first_steps}
+    
+    reference: |
+      # ${section_name}
+      
+      ## Overview
+      ${overview}
+      
+      ## Details
+      ${details}
+      
+      ## Examples
+      ${examples}
