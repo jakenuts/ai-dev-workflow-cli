@@ -14,6 +14,14 @@ This guide outlines the standardized workflow for AI-assisted development using 
 - [Configuration](#configuration)
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
+- [Exploration and Navigation](#exploration-and-navigation)
+- [Interactive Guide Features](#interactive-guide-features)
+- [Checklist Management](#checklist-management)
+- [Advanced Features](#advanced-features)
+- [Team Collaboration](#team-collaboration)
+- [Project Templates](#project-templates)
+- [Integrations](#integrations)
+- [Security and Privacy](#security-and-privacy)
 
 ## Installation and Setup
 
@@ -331,3 +339,192 @@ ai-dev status
 
 # Get detailed status
 ai-dev status --full
+
+```
+
+## Exploration and Navigation
+
+The `ai-dev explore` command helps you navigate and understand your codebase:
+
+```bash
+# Explore codebase structure
+ai-dev explore
+
+# Search for specific patterns
+ai-dev explore --pattern "**/*.test.ts"
+
+# View priority files
+ai-dev explore --priority
+```
+
+Priority files typically include:
+- Configuration files
+- Main entry points
+- Core components
+- Test suites
+- Documentation
+
+## Interactive Guide Features
+
+The `ai-dev guide` command provides interactive assistance:
+
+### Story Creation
+```bash
+# Get guidance for story creation
+ai-dev guide story create
+
+# Update existing story
+ai-dev guide story update
+
+# Review story requirements
+ai-dev guide story review
+```
+
+### Implementation Guidance
+```bash
+# Get implementation guidance
+ai-dev guide implement start
+
+# Review implementation plan
+ai-dev guide implement plan
+
+# Get code suggestions
+ai-dev guide implement suggest
+```
+
+### Review Guidance
+```bash
+# Get review checklist
+ai-dev guide review checklist
+
+# Review best practices
+ai-dev guide review practices
+
+# Security review guidance
+ai-dev guide review security
+```
+
+## Checklist Management
+
+Manage development checklists with `ai-dev checklist`:
+
+```bash
+# Create new checklist
+ai-dev checklist create
+
+# Run checklist
+ai-dev checklist run
+
+# Create custom template
+ai-dev checklist template create
+
+# List available templates
+ai-dev checklist template list
+```
+
+## Advanced Features
+
+### AI Pattern Recognition
+```bash
+# Analyze code patterns
+ai-dev analyze patterns
+
+# Get pattern suggestions
+ai-dev analyze suggest
+
+# Apply pattern fixes
+ai-dev analyze fix
+```
+
+### Performance Optimization
+```bash
+# Run performance analysis
+ai-dev analyze performance
+
+# Get optimization suggestions
+ai-dev analyze optimize
+
+# Apply optimizations
+ai-dev analyze apply
+```
+
+## Team Collaboration
+
+### Sharing Context
+```bash
+# Export team context
+ai-dev context export
+
+# Import team context
+ai-dev context import
+
+# Sync team settings
+ai-dev context sync
+```
+
+### Knowledge Sharing
+```bash
+# Create knowledge base
+ai-dev kb create
+
+# Search knowledge base
+ai-dev kb search
+
+# Update documentation
+ai-dev kb update
+```
+
+## Project Templates
+
+### Template Management
+```bash
+# List available templates
+ai-dev template list
+
+# Create custom template
+ai-dev template create
+
+# Apply template
+ai-dev template apply
+
+# Update template
+ai-dev template update
+```
+
+## Integrations
+
+### IDE Integration
+The AI workflow integrates with popular IDEs:
+- VS Code Extension
+- JetBrains Plugin
+- Vim/Neovim Plugin
+
+### CI/CD Integration
+```bash
+# Generate CI config
+ai-dev ci init
+
+# Add workflow checks
+ai-dev ci checks add
+
+# Update pipeline
+ai-dev ci update
+```
+
+## Security and Privacy
+
+### Data Management
+- Local data storage
+- Encrypted credentials
+- API key management
+
+### Security Best Practices
+```bash
+# Run security scan
+ai-dev security scan
+
+# Check dependencies
+ai-dev security deps
+
+# Audit configuration
+ai-dev security audit
