@@ -5,6 +5,7 @@ import { guide } from './commands/guide';
 import { explore } from './commands/explore';
 import { ChecklistCommand } from './commands/checklist';
 import { ReviewCommand } from './commands/review';
+import { StatusCommand } from './commands/status';
 import { version } from '../package.json';
 
 const program = new Command();
@@ -54,5 +55,6 @@ program
 // Register commands
 ChecklistCommand.register(program);
 ReviewCommand.register(program);
+StatusCommand.register(program);
 
 program.parse();
