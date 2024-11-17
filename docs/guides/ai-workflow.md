@@ -3,25 +3,26 @@
 This guide outlines the standardized workflow for AI-assisted development using the `ai-dev` CLI tool. Following these guidelines ensures consistent, high-quality development practices across your team.
 
 ## Table of Contents
-- [Installation and Setup](#installation-and-setup)
-- [Core Concepts](#core-concepts)
-- [Basic Workflow](#basic-workflow)
+- [Installation and Setup](#installation-and-setup) 
+- [Core Concepts](#core-concepts) 
+- [Basic Workflow](#basic-workflow) 
 - [Development Commands](#development-commands)
-  - [Context Management](#context-management)
-  - [Story Management](#story-management)
-  - [Code Operations](#code-operations)
-  - [Status Tracking](#status-tracking)
-- [Configuration](#configuration)
-- [Best Practices](#best-practices)
-- [Troubleshooting](#troubleshooting)
-- [Exploration and Navigation](#exploration-and-navigation)
-- [Interactive Guide Features](#interactive-guide-features)
-- [Checklist Management](#checklist-management)
-- [Advanced Features](#advanced-features)
-- [Team Collaboration](#team-collaboration)
-- [Project Templates](#project-templates)
-- [Integrations](#integrations)
-- [Security and Privacy](#security-and-privacy)
+  - [Context Management](#context-management) 
+  - [Story Management](#story-management) 
+  - [Code Operations](#code-operations) 
+  - [Status Tracking](#status-tracking) 
+- [Configuration](#configuration) 
+- [Best Practices](#best-practices) 
+- [Troubleshooting](#troubleshooting) 
+- [Exploration and Navigation](#exploration-and-navigation) 
+- [Interactive Guide Features](#interactive-guide-features) 
+- [Planned Features](#planned-features) 
+  - [Checklist Management](#checklist-management) (Coming Soon)
+  - [Advanced Features](#advanced-features) (Coming Soon)
+  - [Team Collaboration](#team-collaboration) (Coming Soon)
+  - [Project Templates](#project-templates) (Coming Soon)
+  - [Integrations](#integrations) (Coming Soon)
+  - [Security and Privacy](#security-and-privacy) (Coming Soon)
 
 ## Installation and Setup
 
@@ -404,10 +405,15 @@ ai-dev guide review practices
 ai-dev guide review security
 ```
 
-## Checklist Management
+## Planned Features 
 
-Manage development checklists with `ai-dev checklist`:
+The following features are planned for future releases:
 
+### Checklist Management (Coming Soon)
+
+> **TODO**: Implement checklist management functionality
+
+Planned features for `ai-dev checklist`:
 ```bash
 # Create new checklist
 ai-dev checklist create
@@ -422,9 +428,11 @@ ai-dev checklist template create
 ai-dev checklist template list
 ```
 
-## Advanced Features
+### Advanced Features (Coming Soon)
 
-### AI Pattern Recognition
+> **TODO**: Implement AI pattern recognition and performance optimization
+
+#### AI Pattern Recognition
 ```bash
 # Analyze code patterns
 ai-dev analyze patterns
@@ -436,7 +444,7 @@ ai-dev analyze suggest
 ai-dev analyze fix
 ```
 
-### Performance Optimization
+#### Performance Optimization
 ```bash
 # Run performance analysis
 ai-dev analyze performance
@@ -448,9 +456,11 @@ ai-dev analyze optimize
 ai-dev analyze apply
 ```
 
-## Team Collaboration
+### Team Collaboration (Coming Soon)
 
-### Sharing Context
+> **TODO**: Implement team collaboration features
+
+#### Sharing Context
 ```bash
 # Export team context
 ai-dev context export
@@ -462,7 +472,7 @@ ai-dev context import
 ai-dev context sync
 ```
 
-### Knowledge Sharing
+#### Knowledge Sharing
 ```bash
 # Create knowledge base
 ai-dev kb create
@@ -474,9 +484,11 @@ ai-dev kb search
 ai-dev kb update
 ```
 
-## Project Templates
+### Project Templates (Coming Soon)
 
-### Template Management
+> **TODO**: Implement project template management
+
+#### Template Management
 ```bash
 # List available templates
 ai-dev template list
@@ -491,15 +503,17 @@ ai-dev template apply
 ai-dev template update
 ```
 
-## Integrations
+### Integrations (Coming Soon)
 
-### IDE Integration
-The AI workflow integrates with popular IDEs:
+> **TODO**: Implement IDE and CI/CD integrations
+
+#### IDE Integration
+Planned integrations with popular IDEs:
 - VS Code Extension
 - JetBrains Plugin
 - Vim/Neovim Plugin
 
-### CI/CD Integration
+#### CI/CD Integration
 ```bash
 # Generate CI config
 ai-dev ci init
@@ -511,14 +525,17 @@ ai-dev ci checks add
 ai-dev ci update
 ```
 
-## Security and Privacy
+### Security and Privacy (Coming Soon)
 
-### Data Management
+> **TODO**: Implement security and privacy features
+
+#### Data Management
+Planned features:
 - Local data storage
 - Encrypted credentials
 - API key management
 
-### Security Best Practices
+#### Security Best Practices
 ```bash
 # Run security scan
 ai-dev security scan
