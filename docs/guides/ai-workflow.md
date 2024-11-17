@@ -9,6 +9,7 @@ This guide outlines the standardized workflow for AI-assisted development using 
 - [Context-Aware Development](#context-aware-development)
 - [Git Workflow Integration](#git-workflow-integration)
 - [Workflow Status](#workflow-status)
+- [Code Operations](#code-operations)
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
@@ -211,6 +212,73 @@ When using `--full` flag, additional metrics are shown:
 - API response times
 - Sprint progress and story status
 - Detailed team collaboration metrics
+
+## Code Operations
+
+The `ai-dev code` command provides AI-assisted code operations:
+
+### Code Review
+```bash
+# Basic code review
+ai-dev code review
+
+# Review specific files
+ai-dev code review --files "src/**/*.ts"
+
+# Specific review type
+ai-dev code review --type security
+ai-dev code review --type performance
+ai-dev code review --type style
+
+# Review with checklist
+ai-dev code review --checklist
+
+# Auto-fix simple issues
+ai-dev code review --autofix
+
+# Interactive review mode
+ai-dev code review --interactive
+
+# Set analysis depth
+ai-dev code review --depth basic
+ai-dev code review --depth detailed
+ai-dev code review --depth comprehensive
+```
+
+The review process:
+1. Loads AI context and project configuration
+2. Identifies files to review (staged files by default)
+3. Performs selected types of analysis
+4. Provides detailed feedback and suggestions
+5. Optionally applies automatic fixes
+
+### Testing with AI Analysis
+```bash
+# Run tests with AI analysis
+ai-dev code test
+
+# Test specific files
+ai-dev code test --files "tests/**/*.spec.ts"
+
+# Update test snapshots
+ai-dev code test --update
+
+# Watch mode for continuous testing
+ai-dev code test --watch
+
+# Collect coverage information
+ai-dev code test --coverage
+
+# Get detailed AI analysis of results
+ai-dev code test --analyze
+```
+
+The test command:
+1. Executes test suite
+2. Collects test results and coverage data
+3. Analyzes patterns in failures
+4. Suggests test improvements
+5. Identifies potential code issues
 
 ## Best Practices
 
