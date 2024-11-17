@@ -32,6 +32,18 @@
    - [ ] `ai merge` - Merge contexts
    - [ ] `ai diff` - Compare contexts
 
+5. Task Management
+   - [ ] `ai task new` - Create new development task
+   - [ ] `ai task list` - List all tasks
+   - [ ] `ai task start <id>` - Start working on a task
+   - [ ] `ai task pause <id>` - Pause task and save context
+   - [ ] `ai task resume <id>` - Resume task with saved context
+   - [ ] `ai task done <id>` - Complete task and archive context
+   - [ ] `ai task deps` - Show task dependencies
+   - [ ] `ai task tree` - Show task hierarchy
+   - [ ] `ai task context` - Show/edit task-specific context
+   - [ ] `ai task export` - Export task details (for tickets/PRs)
+
 ## Next Steps
 1. Define command specifications:
    - Arguments and options
