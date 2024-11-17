@@ -1,105 +1,140 @@
 # AI Dev Workflow CLI
 
-A framework-agnostic tool that provides AI-guided development workflows and patterns. Works with your preferred AI assistant to streamline the development process.
+<div align="center">
 
-> 🚀 This project was developed using [Codeium's Windsurf](https://codeium.com/windsurf), the world's first agentic IDE that enables true AI-human collaboration.
+[![GitHub license](https://img.shields.io/github/license/carmelyne/ai-dev-workflow-cli)](https://github.com/carmelyne/ai-dev-workflow-cli/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/ai-dev-workflow-cli)](https://www.npmjs.com/package/ai-dev-workflow-cli)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/carmelyne/ai-dev-workflow-cli/blob/main/CONTRIBUTING.md)
 
-## Documentation
+</div>
 
-📚 **[View the full documentation](https://carmelyne.github.io/ai-dev-workflow-cli)** for detailed guides, examples, and best practices.
+Transform your development workflow with AI-powered guidance. This framework-agnostic CLI tool seamlessly integrates AI assistance into your development process, helping you write better code, faster.
 
-## Features
+> 🚀 Built with [Codeium's Windsurf](https://codeium.com/windsurf), the world's first agentic IDE that enables true AI-human collaboration.
 
-- 🤖 AI-guided development workflows
-- 📝 Standardized user story templates
-- 🔄 Consistent development patterns
-- 🔍 Project-type specific guidance
-- 📋 Automated PR templates
+## ✨ Highlights
 
-## Installation
+- 🧠 **AI Development Framework** - A structured way for anyone to develop their work alongside AI, maintaining context through tenets and tracking
+- 🎯 **Universal AI Workflow** - Transform any creative or analytical process into a clear AI-assisted workflow with guiding tenets
+- 🔄 **AI-Human Collaboration** - Track progress and maintain shared context between human and AI through structured files and stages
+- 📝 **Adaptive Interface** - Commands like `story`, `explore`, and `review` create a consistent interface between you and AI for any type of work
+- ⚡ **Continuous Context** - Keep your AI assistant aligned with your goals and progress through the `context` command
+
+> 💡 While this framework is designed for any AI-assisted workflow, we're starting with software development as our first template. The principles of structured collaboration and context management proven in development can be applied to any creative or analytical process.
+
+## 📚 Documentation
+
+**[View the full documentation](https://carmelyne.github.io/ai-dev-workflow-cli)** for:
+- Detailed guides and tutorials
+- Best practices and patterns
+- Command reference
+- Configuration options
+- Advanced features
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
+# Using npm
 npm install -g ai-dev-workflow-cli
-```
 
-Or use directly with npx:
-```bash
+# Or using npx (no installation required)
 npx ai-dev-workflow-cli init
 ```
 
-## Usage
+### Basic Usage
 
-1. Initialize in your project:
 ```bash
+# Initialize AI workflow in your project
 ai-dev init
-```
 
-2. Get AI guidance for a new feature:
-```bash
+# Create a new feature with AI guidance
 ai-dev story create
-```
 
-3. Start implementing with AI guidance:
-```bash
-ai-dev implement feature
-```
+# Get implementation guidance
+ai-dev implement feature-name
 
-4. Get AI review guidance:
-```bash
+# AI-assisted code review
 ai-dev review
 ```
 
-## Configuration
+## 🛠 Key Features
 
-The tool creates a `.ai` directory with:
+### AI-Guided Workflows
+
+The CLI provides intelligent guidance at every step:
+- User story creation and refinement
+- Implementation strategy and patterns
+- Code review and best practices
+- Documentation assistance
+
+### Smart Templates
+
+Automatically generate and adapt:
+- User story templates
+- PR templates
+- Documentation templates
+- Code patterns
+
+### Project Type Support
+
+Specialized patterns for:
+- Web Applications
+- Libraries/Packages
+- CLI Tools
+- APIs
+- And more...
+
+## ⚙️ Configuration
+
+The tool maintains its configuration in the `.ai` directory:
 
 ```
 .ai/
-├── config.yaml          # Core AI guidance configuration
-├── patterns/           # Reusable patterns
-└── templates/          # Story/PR templates
+├── config.yaml     # Core configuration
+├── patterns/       # Reusable patterns
+└── templates/      # Story/PR templates
 ```
 
-### Project Types
+Configuration options include:
+- AI provider settings
+- Custom templates
+- Project-specific patterns
+- Team preferences
 
-Supports any project type with specialized patterns for:
-- Web Applications
-- Libraries
-- CLI Tools
-
-### Workflow Steps
-
-1. User Story Creation
-2. Branch Creation
-3. Documentation First
-4. Implementation
-5. Testing
-6. PR Creation
-
-## Development
+## 🧑‍💻 Development
 
 ```bash
 # Install dependencies
 npm install
 
-# Run in development
+# Run in development mode
 npm run dev
 
-# Build
+# Build for production
 npm run build
 
-# Test
+# Run tests
 npm test
 ```
 
-## Contributing
+## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Contributions are welcome! See our [Contributing Guide](CONTRIBUTING.md) for details on:
+- Setting up the development environment
+- Coding standards
+- Submitting pull requests
+- Feature requests and bug reports
 
-## License
+## 📄 License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+Made with ❤️ by a Human + Windsurf + Claude + ChatGPT
+<br/>
+<sub>(A real-world example of human-AI collaboration!)</sub>
+</div>
