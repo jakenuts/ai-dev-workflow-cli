@@ -3,17 +3,19 @@
 This guide outlines the standardized workflow for AI-assisted development using the `ai-dev` CLI tool. Following these guidelines ensures consistent, high-quality development practices across your team.
 
 ## Table of Contents
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Configuration Management](#configuration-management)
-- [Context-Aware Development](#context-aware-development)
-- [Git Workflow Integration](#git-workflow-integration)
-- [Workflow Status](#workflow-status)
-- [Code Operations](#code-operations)
+- [Installation and Setup](#installation-and-setup)
+- [Core Concepts](#core-concepts)
+- [Basic Workflow](#basic-workflow)
+- [Development Commands](#development-commands)
+  - [Context Management](#context-management)
+  - [Story Management](#story-management)
+  - [Code Operations](#code-operations)
+  - [Status Tracking](#status-tracking)
+- [Configuration](#configuration)
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
-## Getting Started
+## Installation and Setup
 
 ### Installation
 ```bash
@@ -31,10 +33,26 @@ ai-dev init
 # - .ai/templates/: Story and PR templates
 ```
 
-## Development Workflow
+## Core Concepts
+
+### AI Context
+The AI workflow is context-aware, meaning it understands:
+- Your project structure
+- Development patterns
+- Team preferences
+- Historical decisions
+
+### Workflow Stages
+1. Context Loading
+2. Story Creation
+3. Implementation
+4. Review & Testing
+5. Documentation
+6. Release
+
+## Basic Workflow
 
 ### 1. Load AI Context
-Before starting any development task, always load the AI context:
 ```bash
 # Load AI workflow context
 ai-dev context
@@ -42,12 +60,6 @@ ai-dev context
 # View detailed context information
 ai-dev context -v
 ```
-
-This ensures the AI assistant:
-- Reads your project configuration
-- Understands workflow requirements
-- Follows established patterns
-- Makes informed decisions
 
 ### 2. Create Feature Story
 ```bash
@@ -70,154 +82,38 @@ git checkout -b feature/your-feature-name
 ai-dev implement feature --story .ai/stories/your-feature.md
 ```
 
-### 4. Configuration Management
-The `ai-dev config` command group manages workflow configuration:
+## Development Commands
 
+### Context Management
 ```bash
-# View current config
-ai-dev config view
+# View current context
+ai-dev context
 
-# View template config
-ai-dev config view -t
+# Update context
+ai-dev context update
 
-# Edit project config
-ai-dev config edit
-
-# Edit template config (requires confirmation)
-ai-dev config edit -t
-
-# Sync project config with template
-ai-dev config sync
-
-# Restore template from backup
-ai-dev config restore
-
-# Validate config
-ai-dev config validate
+# Reset context
+ai-dev context reset
 ```
 
-Safety measures:
-- Automatic backups before changes
-- Confirmation prompts for destructive actions
-- Schema validation
-- Project-specific settings preservation
-
-### 5. Review and Testing
+### Story Management
 ```bash
-# Get AI code review with analysis
-ai-dev code review
+# Create new story
+ai-dev story create
 
-# Run tests with AI analysis
-ai-dev code test
+# List stories
+ai-dev story list
+
+# Update story
+ai-dev story update <story-id>
+
+# Complete story
+ai-dev story complete <story-id>
 ```
 
-### 6. Documentation
-```bash
-# Update documentation
-ai-dev docs update
+### Code Operations
 
-# Validate documentation
-ai-dev docs validate
-```
-
-## Git Workflow Integration
-
-The AI workflow integrates with git:
-
-1. Branch Types:
-   - `feature/*`: New features
-   - `bugfix/*`: Bug fixes
-   - `hotfix/*`: Production fixes
-   - `docs/*`: Documentation updates
-
-2. Branch Protection:
-   - `main`: Protected, requires review
-   - `develop`: Integration branch
-   - Feature branches: Created from `develop`
-
-3. Commit Guidelines:
-   - Clear, descriptive messages
-   - Reference story/ticket numbers
-   - Follow conventional commits
-
-## Workflow Status
-
-The `ai-dev status` command provides comprehensive insights into your AI-assisted development workflow:
-
-### Basic Status
-```bash
-# Show basic workflow status
-ai-dev status
-
-# Show detailed status information
-ai-dev status --full
-```
-
-This displays:
-- Current story progress and blockers
-- Git status and changes
-- Code quality metrics
-- Team collaboration status
-- Configuration sync status
-- AI-suggested next steps
-
-### Progress Tracking
-```bash
-# Show detailed progress report
-ai-dev status progress
-
-# View sprint progress
-ai-dev status progress --sprint
-
-# Show timeline view
-ai-dev status progress --timeline
-
-# Display progress charts
-ai-dev status progress --chart
-```
-
-### Blockers and Issues
-```bash
-# Show current blockers
-ai-dev status blockers
-
-# Show all blockers including resolved
-ai-dev status blockers --all
-
-# Filter blockers by type
-ai-dev status blockers --type story
-ai-dev status blockers --type review
-ai-dev status blockers --type test
-```
-
-### Dependency Health
-```bash
-# Check dependency status
-ai-dev status dependencies
-
-# Show outdated packages
-ai-dev status dependencies --outdated
-
-# Check security vulnerabilities
-ai-dev status dependencies --security
-
-# Review license compliance
-ai-dev status dependencies --licenses
-```
-
-### Technical Metrics
-When using `--full` flag, additional metrics are shown:
-- Technical debt analysis
-- Build and test performance
-- API response times
-- Sprint progress and story status
-- Detailed team collaboration metrics
-
-## Code Operations
-
-The `ai-dev code` command provides AI-assisted code operations:
-
-### Code Review
+#### Code Review
 ```bash
 # Basic code review
 ai-dev code review
@@ -245,14 +141,7 @@ ai-dev code review --depth detailed
 ai-dev code review --depth comprehensive
 ```
 
-The review process:
-1. Loads AI context and project configuration
-2. Identifies files to review (staged files by default)
-3. Performs selected types of analysis
-4. Provides detailed feedback and suggestions
-5. Optionally applies automatic fixes
-
-### Testing with AI Analysis
+#### Testing with AI Analysis
 ```bash
 # Run tests with AI analysis
 ai-dev code test
@@ -273,12 +162,117 @@ ai-dev code test --coverage
 ai-dev code test --analyze
 ```
 
-The test command:
-1. Executes test suite
-2. Collects test results and coverage data
-3. Analyzes patterns in failures
-4. Suggests test improvements
-5. Identifies potential code issues
+### Status Tracking
+
+#### Basic Status
+```bash
+# Show basic workflow status
+ai-dev status
+
+# Show detailed status information
+ai-dev status --full
+```
+
+This displays:
+- Current story progress and blockers
+- Git status and changes
+- Code quality metrics
+- Team collaboration status
+- Configuration sync status
+- AI-suggested next steps
+
+#### Progress Tracking
+```bash
+# Show detailed progress report
+ai-dev status progress
+
+# View sprint progress
+ai-dev status progress --sprint
+
+# Show timeline view
+ai-dev status progress --timeline
+
+# Display progress charts
+ai-dev status progress --chart
+```
+
+#### Blockers and Issues
+```bash
+# Show current blockers
+ai-dev status blockers
+
+# Show all blockers including resolved
+ai-dev status blockers --all
+
+# Filter blockers by type
+ai-dev status blockers --type story
+ai-dev status blockers --type review
+ai-dev status blockers --type test
+```
+
+#### Dependency Health
+```bash
+# Check dependency status
+ai-dev status dependencies
+
+# Show outdated packages
+ai-dev status dependencies --outdated
+
+# Check security vulnerabilities
+ai-dev status dependencies --security
+
+# Review license compliance
+ai-dev status dependencies --licenses
+```
+
+## Configuration
+
+### View and Edit Configuration
+```bash
+# View current config
+ai-dev config view
+
+# View template config
+ai-dev config view -t
+
+# Edit project config
+ai-dev config edit
+
+# Edit template config
+ai-dev config edit -t
+```
+
+### Configuration Management
+```bash
+# Sync project config with template
+ai-dev config sync
+
+# Restore template from backup
+ai-dev config restore
+
+# Validate config
+ai-dev config validate
+```
+
+### Git Integration
+
+The AI workflow integrates with git:
+
+1. Branch Types:
+   - `feature/*`: New features
+   - `bugfix/*`: Bug fixes
+   - `hotfix/*`: Production fixes
+   - `docs/*`: Documentation updates
+
+2. Branch Protection:
+   - `main`: Protected, requires review
+   - `develop`: Integration branch
+   - Feature branches: Created from `develop`
+
+3. Commit Guidelines:
+   - Clear, descriptive messages
+   - Reference story/ticket numbers
+   - Follow conventional commits
 
 ## Best Practices
 
@@ -337,14 +331,3 @@ ai-dev status
 
 # Get detailed status
 ai-dev status --full
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create feature branch
-3. Follow AI workflow
-4. Submit PR with story reference
-
-## License
-MIT License - See LICENSE file for details
