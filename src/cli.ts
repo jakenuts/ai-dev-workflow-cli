@@ -3,6 +3,9 @@ import { Command } from 'commander';
 import { init } from './commands/init';
 import { guide } from './commands/guide';
 import { explore } from './commands/explore';
+import { ChecklistCommand } from './commands/checklist';
+import { ReviewCommand } from './commands/review';
+import { StatusCommand } from './commands/status';
 import { version } from '../package.json';
 
 const program = new Command();
@@ -48,5 +51,10 @@ program
   .option('-p, --pattern <pattern>', 'Search pattern (e.g., "src/*.ts")')
   .option('-d, --depth <n>', 'Exploration depth')
   .action(explore);
+
+// Register commands
+ChecklistCommand.register(program);
+ReviewCommand.register(program);
+StatusCommand.register(program);
 
 program.parse();

@@ -1,9 +1,14 @@
-remote_theme: just-the-docs/just-the-docs
-
 title: AI Dev Workflow CLI
-description: Framework-agnostic tool for AI-guided development workflows
+description: Framework-agnostic tool that provides AI-guided development workflows and patterns
+remote_theme: just-the-docs/just-the-docs
 baseurl: "/ai-dev-workflow-cli"
 url: "https://carmelyne.github.io"
+
+# Theme settings
+theme_color: custom
+color_scheme: custom
+logo: "/assets/images/logo.svg"
+favicon_ico: "/assets/images/favicon.ico"
 
 # Enable search
 search_enabled: true
@@ -16,7 +21,55 @@ search:
   rel_url: true
   button: true
 
-# Navigation
+# Custom navigation structure
+nav:
+  - title: Getting Started 
+    url: /getting-started
+  - title: Core Features
+    children:
+      - title: Basic Workflow 
+        url: /features/basic-workflow
+      - title: Development Commands 
+        url: /features/commands
+      - title: Configuration 
+        url: /features/configuration
+      - title: Status Tracking 
+        url: /features/status
+  - title: Advanced Features
+    children:
+      - title: Code Operations 
+        url: /features/code-operations
+      - title: Exploration 
+        url: /features/exploration
+      - title: Interactive Guide 
+        url: /features/guide
+  - title: Planned Features 
+    children:
+      - title: Checklist Management
+        url: /planned/checklist
+      - title: AI Pattern Recognition
+        url: /planned/ai-patterns
+      - title: Team Collaboration
+        url: /planned/collaboration
+      - title: Project Templates
+        url: /planned/templates
+      - title: Integrations
+        url: /planned/integrations
+      - title: Security Features
+        url: /planned/security
+  - title: Reference
+    children:
+      - title: Commands Reference 
+        url: /reference/commands
+      - title: Configuration Reference 
+        url: /reference/configuration
+      - title: Best Practices 
+        url: /reference/best-practices
+      - title: Troubleshooting 
+        url: /reference/troubleshooting
+  - title: GitHub
+    url: https://github.com/carmelyne/ai-dev-workflow-cli
+
 nav_external_links:
   - title: View on GitHub
     url: https://github.com/carmelyne/ai-dev-workflow-cli
@@ -32,3 +85,79 @@ aux_links_new_tab: true
 
 # Footer content
 footer_content: "Copyright &copy; 2023 AI Dev Workflow CLI Contributors. Distributed under an MIT license."
+
+# Theme settings
+theme_color: custom
+color_scheme: custom
+logo: "/assets/images/logo.svg"
+favicon_ico: "/assets/images/favicon.ico"
+
+# Custom navigation structure
+nav:
+  - title: Getting Started 
+    url: /getting-started
+  - title: Core Features
+    children:
+      - title: Basic Workflow 
+        url: /features/basic-workflow
+      - title: Development Commands 
+        url: /features/commands
+      - title: Configuration 
+        url: /features/configuration
+      - title: Status Tracking 
+        url: /features/status
+  - title: Advanced Features
+    children:
+      - title: Code Operations 
+        url: /features/code-operations
+      - title: Exploration 
+        url: /features/exploration
+      - title: Interactive Guide 
+        url: /features/guide
+  - title: Planned Features 
+    children:
+      - title: Checklist Management
+        url: /planned/checklist
+      - title: AI Pattern Recognition
+        url: /planned/ai-patterns
+      - title: Team Collaboration
+        url: /planned/collaboration
+      - title: Project Templates
+        url: /planned/templates
+      - title: Integrations
+        url: /planned/integrations
+      - title: Security Features
+        url: /planned/security
+  - title: Reference
+    children:
+      - title: Commands Reference 
+        url: /reference/commands
+      - title: Configuration Reference 
+        url: /reference/configuration
+      - title: Best Practices 
+        url: /reference/best-practices
+      - title: Troubleshooting 
+        url: /reference/troubleshooting
+
+# Footer configuration
+footer_content: "Copyright &copy; 2023 AI Dev Workflow CLI. Distributed under the MIT license."
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+# External navigation links
+nav_external_links:
+  - title: View on GitHub
+    url: https://github.com/carmelyne/ai-dev-workflow-cli
+    hide_icon: false
+
+# Makes Aux links open in a new tab
+aux_links_new_tab: true
+
+# Default layout
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
