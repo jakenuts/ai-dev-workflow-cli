@@ -2,14 +2,42 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 interface AICommandOptions {
+  content?: string;
+  type?: string;
+  depth?: string;
+  context?: Record<string, any>;
   [key: string]: any;
+}
+
+interface AIAnalysisIssue {
+  severity: 'info' | 'warning' | 'error';
+  line?: number;
+  description: string;
+  suggestion?: string;
+  autoFixable: boolean;
+}
+
+interface AIAnalysisMetrics {
+  complexity: number;
+  maintainability: number;
+  testability: number;
+}
+
+interface AIAnalysisResult {
+  issues: AIAnalysisIssue[];
+  metrics?: AIAnalysisMetrics;
+  fixes?: Array<{
+    file: string;
+    line: number;
+    fix: string;
+  }>;
 }
 
 /**
  * Executes an AI command using Codeium's capabilities
  * This function integrates with Codeium to provide AI-guided development
  */
-export async function executeAICommand(command: string, options: AICommandOptions): Promise<void> {
+export async function executeAICommand(command: string, options: AICommandOptions): Promise<AIAnalysisResult> {
   // Get project context
   const projectRoot = process.cwd();
   const projectFiles = await getRelevantFiles(projectRoot, command, options);
@@ -27,22 +55,21 @@ export async function executeAICommand(command: string, options: AICommandOption
     switch (command) {
       case 'story:create':
         await handleStoryCreation(context);
-        break;
+        return { issues: [], metrics: { complexity: 0, maintainability: 0, testability: 0 } };
       
       case 'implement':
         await handleImplementation(context);
-        break;
+        return { issues: [], metrics: { complexity: 0, maintainability: 0, testability: 0 } };
       
       case 'review':
-        await handleCodeReview(context);
-        break;
+        return handleCodeReview(context);
       
       default:
         throw new Error(`Unknown AI command: ${command}`);
     }
   } catch (error) {
     console.error('Error executing AI command:', error);
-    process.exit(1);
+    throw error; // Re-throw instead of exiting to maintain proper error handling
   }
 }
 
@@ -119,47 +146,35 @@ async function handleImplementation(context: any): Promise<void> {
   // 4. Suggest test cases
 }
 
-async function handleCodeReview(context: any): Promise<any> {
+async function handleCodeReview(context: any): Promise<AIAnalysisResult> {
   const { options, files } = context;
   console.log('🔍 AI Code Review');
   console.log('\nAnalyzing code...');
   
   // Mock AI review response for now
   // This would be replaced with actual Codeium API integration
-  const analysis = {
+  const analysis: AIAnalysisResult = {
     issues: [
       {
-        type: 'security',
-        severity: 'high',
-        message: 'Potential security vulnerability detected',
-        file: options.file,
+        severity: 'error',
         line: 42,
-        suggestion: 'Consider using parameterized queries'
+        description: 'Potential security vulnerability detected',
+        suggestion: 'Consider using parameterized queries',
+        autoFixable: true
       }
     ],
-    suggestions: [
-      {
-        type: 'performance',
-        message: 'Consider caching this operation',
-        file: options.file,
-        line: 55,
-        code: '// Add caching here'
-      }
-    ],
+    metrics: {
+      complexity: 0.5,
+      maintainability: 0.7,
+      testability: 0.9
+    },
     fixes: options.autofix ? [
       {
         file: options.file,
         line: 60,
-        original: 'const x = 1',
-        replacement: 'const x: number = 1'
+        fix: 'const x: number = 1'
       }
-    ] : [],
-    summary: {
-      filesReviewed: 1,
-      issuesFound: 1,
-      suggestionsProvided: 1,
-      fixesAvailable: 1
-    }
+    ] : []
   };
 
   return analysis;

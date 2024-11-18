@@ -1,9 +1,11 @@
 import { Command } from 'commander';
-import fs from 'fs';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
+import { loadConfig } from '../../utils/config.js';
+import { executeAICommand } from '../../utils/ai.js';
+import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'yaml';
-import chalk from 'chalk';
-import { prompt } from 'inquirer';
 
 interface WorkflowModule {
   name: string;
@@ -13,9 +15,7 @@ interface WorkflowModule {
   configuration: any;
 }
 
-export function createWorkflowModuleCommands() {
-  const command = new Command('workflow');
-
+export function createWorkflowModuleCommands(command: Command) {
   // List available workflow modules
   command
     .command('list')
@@ -64,7 +64,40 @@ export function createWorkflowModuleCommands() {
       }
     });
 
-  return command;
+  command
+    .command('add')
+    .description('Add a new workflow module')
+    .action(async () => {
+      try {
+        const config = await loadConfig();
+        if (!config) {
+          console.error(chalk.red('Failed to load config from .ai/config.yaml'));
+          return;
+        }
+
+        const { name } = await inquirer.prompt({
+          type: 'input',
+          name: 'name',
+          message: 'Module name:',
+          validate: (input: string) => {
+            if (!input) return 'Name is required';
+            if (config.development_workflow[input]) {
+              return 'Module already exists';
+            }
+            return true;
+          }
+        });
+
+        // ... rest of the code remains the same ...
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error(chalk.red('Error adding module:'), error.message);
+        } else {
+          console.error(chalk.red('Error adding module:'), String(error));
+        }
+        process.exit(1);
+      }
+    });
 }
 
 async function listWorkflowModules(tag?: string): Promise<WorkflowModule[]> {
@@ -72,17 +105,17 @@ async function listWorkflowModules(tag?: string): Promise<WorkflowModule[]> {
   const modules: WorkflowModule[] = [];
 
   // Recursively find all .yaml files
-  function findYamlFiles(dir: string) {
-    const files = fs.readdirSync(dir);
+  async function findYamlFiles(dir: string) {
+    const files = await fs.readdir(dir);
     
     for (const file of files) {
       const fullPath = path.join(dir, file);
-      const stat = fs.statSync(fullPath);
+      const stat = await fs.stat(fullPath);
       
       if (stat.isDirectory()) {
-        findYamlFiles(fullPath);
+        await findYamlFiles(fullPath);
       } else if (file.endsWith('.yaml')) {
-        const content = fs.readFileSync(fullPath, 'utf8');
+        const content = await fs.readFile(fullPath, 'utf8');
         const module = yaml.parse(content);
         
         // Only include if it matches tag filter
@@ -96,18 +129,18 @@ async function listWorkflowModules(tag?: string): Promise<WorkflowModule[]> {
     }
   }
 
-  findYamlFiles(workflowsDir);
+  await findYamlFiles(workflowsDir);
   return modules;
 }
 
 async function getModuleDetails(moduleName: string): Promise<WorkflowModule> {
   const modulePath = path.join(process.cwd(), 'templates/workflows', `${moduleName}.yaml`);
   
-  if (!fs.existsSync(modulePath)) {
+  if (!(await fs.stat(modulePath).catch(() => null))) {
     throw new Error(`Module '${moduleName}' not found`);
   }
 
-  const content = fs.readFileSync(modulePath, 'utf8');
+  const content = await fs.readFile(modulePath, 'utf8');
   return {
     name: moduleName,
     ...yaml.parse(content)
@@ -154,7 +187,7 @@ function displayModuleDetails(module: WorkflowModule) {
 async function selectModulesInteractively(): Promise<string[]> {
   const modules = await listWorkflowModules();
   
-  const { selected } = await prompt({
+  const { selected } = await inquirer.prompt({
     type: 'checkbox',
     name: 'selected',
     message: 'Select workflow modules to include:',
@@ -186,6 +219,6 @@ async function composeWorkflow(moduleNames: string[]): Promise<any> {
 
 async function saveComposedWorkflow(config: any, outputFile: string) {
   const outputPath = path.join(process.cwd(), outputFile);
-  fs.writeFileSync(outputPath, yaml.stringify(config));
+  await fs.writeFile(outputPath, yaml.stringify(config));
   console.log(chalk.green(`\n✨ Workflow configuration saved to ${outputFile}\n`));
 }

@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { loadConfig } from '../utils/config';
+import { loadConfig } from '../utils/config.js';
 import chalk from 'chalk';
 
 export function createFollowCommand() {
@@ -12,6 +12,11 @@ export function createFollowCommand() {
     .action(async (type: string, feature: string) => {
       try {
         const config = await loadConfig();
+        if (!config) {
+          console.error(chalk.red('Failed to load config from .ai/config.yaml'));
+          return;
+        }
+
         const workflow = config.development_workflow[type];
         
         if (!workflow) {

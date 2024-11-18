@@ -1,4 +1,4 @@
-import { createExplorer } from '../explorer';
+import { createExplorer } from '../explorer.js';
 
 interface ExploreOptions {
   pattern?: string;
@@ -36,8 +36,12 @@ export async function explore(options: ExploreOptions) {
         console.log(`- ${file} (${metadata.type}, ${formatSize(metadata.size)})`);
       }
     }
-  } catch (error) {
-    console.error('Error exploring project:', error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error exploring project:', error.message);
+    } else {
+      console.error('Error exploring project:', String(error));
+    }
     process.exit(1);
   }
 }

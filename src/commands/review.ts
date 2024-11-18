@@ -2,8 +2,8 @@ import { Command } from 'commander';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as glob from 'glob';
-import { loadConfig } from '../utils/config';
-import { executeAICommand } from '../utils/ai';
+import { loadConfig } from '../utils/config.js';
+import { executeAICommand } from '../utils/ai.js';
 
 interface ReviewOptions {
   files?: string;
@@ -46,13 +46,13 @@ export class ReviewCommand {
     }
 
     // Perform review based on type
-    const reviewTypes = options.type === 'all' 
+    const reviewTypes = (options.type || 'all') === 'all'
       ? ['security', 'performance', 'style']
-      : [options.type];
+      : [options.type || 'all'];
 
     for (const type of reviewTypes) {
       console.log(`\n📝 Performing ${type} review...\n`);
-      await ReviewCommand.reviewFiles(files, type, options.autofix);
+      await ReviewCommand.reviewFiles(files, type, options.autofix || false);
     }
 
     // Generate summary

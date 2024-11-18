@@ -1,14 +1,36 @@
 import { Command } from 'commander';
-import { loadConfig } from '../utils/config';
-import { prompt } from 'inquirer';
 import chalk from 'chalk';
-import { createWorkflowModuleCommands } from './workflow/modules';
+import inquirer from 'inquirer';
+import { loadConfig } from '../utils/config.js';
+import { executeAICommand } from '../utils/ai.js';
+import { createWorkflowStep } from './workflow/step.js';
+import { createWorkflowModuleCommands } from './workflow/modules.js';
 
-export function createWorkflowCommand() {
+interface WorkflowStep {
+  type: string;
+  status: string;
+  title: string;
+  description?: string;
+  command?: string;
+  args?: string[];
+  guidelines?: string[];
+  files?: string[];
+  steps?: string[];
+}
+
+interface WorkflowConfig {
+  description: string;
+  steps: Record<string, WorkflowStep>;
+}
+
+export function createWorkflowCommand(): Command {
   const command = new Command('workflow');
   
   // Add module management commands
-  command.addCommand(createWorkflowModuleCommands());
+  createWorkflowModuleCommands(command);
+  
+  // Add step management command
+  command.addCommand(createWorkflowStep());
   
   // Original workflow following command
   command
@@ -17,17 +39,20 @@ export function createWorkflowCommand() {
     .argument('[type]', 'Workflow type (basic or advanced)')
     .action(async (type?: string) => {
       try {
-        // If no type provided, run interactive mode
         if (!type) {
-          return await runInteractiveMode();
+          await runInteractiveMode();
+          return;
         }
 
         // If type provided, display workflow for AI to follow
         const config = await loadConfig();
+        if (!config?.development_workflow) {
+          throw new Error('No workflow configuration found. Please run init first.');
+        }
+
         const workflow = config.development_workflow[type];
-        
         if (!workflow) {
-          console.error(chalk.red(`Workflow type '${type}' not found. Available types: basic, advanced`));
+          console.error(chalk.red(`Workflow type '${type}' not found. Available types: ${Object.keys(config.development_workflow).join(', ')}`));
           return;
         }
 
@@ -42,13 +67,13 @@ export function createWorkflowCommand() {
           if (step.command) {
             console.log(chalk.cyan(`  Command template: ${step.command}`));
           }
-          if (step.guidelines) {
+          if (step.guidelines?.length) {
             console.log(chalk.cyan('  Guidelines:'));
             step.guidelines.forEach((guideline: string) => {
               console.log(chalk.cyan(`    • ${guideline}`));
             });
           }
-          if (step.files) {
+          if (step.files?.length) {
             console.log(chalk.cyan('  Files:'));
             step.files.forEach((file: string) => {
               console.log(chalk.cyan(`    • ${file}`));
@@ -59,7 +84,8 @@ export function createWorkflowCommand() {
 
         console.log(chalk.green('\nWorkflow loaded. The AI will now follow these steps.\n'));
       } catch (error) {
-        console.error(chalk.red('Error loading workflow:'), error);
+        console.error(chalk.red('Error loading workflow:'), error instanceof Error ? error.message : String(error));
+        process.exit(1);
       }
     });
 
@@ -67,10 +93,14 @@ export function createWorkflowCommand() {
 }
 
 // Interactive mode for when users run 'ai-dev workflow' without args
-async function runInteractiveMode() {
+async function runInteractiveMode(): Promise<void> {
   try {
     const config = await loadConfig();
-    const { type } = await prompt({
+    if (!config?.development_workflow) {
+      throw new Error('No workflow configuration found. Please run init first.');
+    }
+
+    const { type } = await inquirer.prompt({
       type: 'list',
       name: 'type',
       message: 'Select workflow type:',
@@ -78,51 +108,58 @@ async function runInteractiveMode() {
     });
 
     const workflow = config.development_workflow[type];
+    if (!workflow) {
+      throw new Error(`Workflow type '${type}' not found`);
+    }
+
     console.log(chalk.blue(`\n📋 Starting ${type} workflow: ${workflow.description}\n`));
 
-    // Go through each step interactively
+    // Execute each step in sequence
     for (const [stepKey, step] of Object.entries(workflow.steps)) {
       const stepNumber = stepKey.split('_')[0];
       console.log(chalk.yellow(`\nStep ${stepNumber}: ${step.description}`));
 
       if (step.command) {
-        const { execute } = await prompt({
+        const { execute } = await inquirer.prompt({
           type: 'input',
           name: 'execute',
           message: `Enter values for command: ${step.command}\n(Press Enter to skip)`,
         });
 
         if (execute) {
-          const command = step.command.replace(/\${(\w+)}/g, (_, key) => {
-            return execute[key] || `\${${key}}`;
-          });
-          console.log(chalk.green(`Executing: ${command}`));
-          // TODO: Execute command
+          try {
+            await executeAICommand(step.command, execute.split(' '));
+          } catch (error) {
+            console.error(chalk.red(`Error executing command: ${error instanceof Error ? error.message : String(error)}`));
+          }
         }
       }
 
-      if (step.guidelines) {
+      // Show guidelines if any
+      if (step.guidelines?.length) {
         console.log(chalk.cyan('\nGuidelines:'));
         step.guidelines.forEach((guideline: string) => {
           console.log(chalk.cyan(`• ${guideline}`));
         });
       }
 
-      if (step.files) {
-        console.log(chalk.cyan('\nFiles to consider:'));
+      // Show files to modify if any
+      if (step.files?.length) {
+        console.log(chalk.cyan('\nFiles to modify:'));
         step.files.forEach((file: string) => {
           console.log(chalk.cyan(`• ${file}`));
         });
       }
 
-      if (step.steps) {
-        console.log(chalk.cyan('\nRequired steps:'));
+      // Show substeps if any
+      if (step.steps?.length) {
+        console.log(chalk.cyan('\nSubsteps:'));
         step.steps.forEach((substep: string) => {
           console.log(chalk.cyan(`• ${substep}`));
         });
       }
 
-      const { completed } = await prompt({
+      const { completed } = await inquirer.prompt({
         type: 'confirm',
         name: 'completed',
         message: 'Have you completed this step?',
@@ -130,13 +167,14 @@ async function runInteractiveMode() {
       });
 
       if (!completed) {
-        console.log(chalk.yellow('\nWorkflow paused. Complete this step before continuing.'));
+        console.log(chalk.yellow('\nPlease complete this step before continuing.'));
         break;
       }
     }
 
-    console.log(chalk.green('\n✨ Workflow completed successfully!\n'));
+    console.log(chalk.green('\n✨ Workflow completed!\n'));
   } catch (error) {
-    console.error(chalk.red('Error in interactive mode:'), error);
+    console.error(chalk.red('Error in interactive mode:'), error instanceof Error ? error.message : String(error));
+    process.exit(1);
   }
 }

@@ -1,8 +1,8 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as inquirer from 'inquirer';
-import * as yaml from 'yaml';
-import { copyTemplate } from '../utils/files';
+import fs from 'fs';
+import path from 'path';
+import inquirer from 'inquirer';
+import yaml from 'yaml';
+import { copyTemplate } from '../utils/files.js';
 
 interface InitOptions {
   type?: string;

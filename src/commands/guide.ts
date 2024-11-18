@@ -1,9 +1,9 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as yaml from 'yaml';
-import * as inquirer from 'inquirer';
-import { loadConfig } from '../utils/config';
-import { executeAICommand } from '../utils/ai';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'yaml';
+import inquirer from 'inquirer';
+import { loadConfig } from '../utils/config.js';
+import { executeAICommand } from '../utils/ai.js';
 
 interface StoryOptions {
   title?: string;
