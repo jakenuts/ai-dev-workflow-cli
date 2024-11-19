@@ -5,14 +5,12 @@ import { join } from 'path';
 import { readdir } from 'fs/promises';
 import { loadYamlFile } from '../utils/yaml.js';
 import { executeAICommand } from '../utils/ai.js';
-import { fileURLToPath } from 'url';
 import type { Workflow, WorkflowStep } from '../types/workflow.js';
 import { isWorkflow } from '../types/workflow.js';
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+import { resolveFromDir } from '../utils/paths.js';
 
 async function loadWorkflow(type: string): Promise<Workflow> {
-  const workflowPath = join(__dirname, '../../templates/workflows', `${type}.yaml`);
+  const workflowPath = resolveFromDir(import.meta.url, '../../templates/workflows', `${type}.yaml`);
   try {
     const content = await loadYamlFile(workflowPath);
     if (!content || !isWorkflow(content)) {
@@ -26,7 +24,7 @@ async function loadWorkflow(type: string): Promise<Workflow> {
 }
 
 async function listWorkflows(): Promise<void> {
-  const workflowsDir = join(__dirname, '../../templates/workflows');
+  const workflowsDir = resolveFromDir(import.meta.url, '../../templates/workflows');
   try {
     const files = (await readdir(workflowsDir))
       .filter(file => file.endsWith('.yaml'))

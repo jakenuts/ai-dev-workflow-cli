@@ -3,9 +3,7 @@ import path from 'path';
 import inquirer from 'inquirer';
 import yaml from 'yaml';
 import { copyTemplate } from '../utils/files.js';
-import { fileURLToPath } from 'url';
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+import { resolveFromDir } from '../utils/paths.js';
 
 interface InitOptions {
   type?: string;
@@ -43,7 +41,7 @@ export async function init(options: InitOptions) {
   }
 
   // Copy and customize config template
-  const configTemplate = path.join(__dirname, '../../templates/config.yaml');
+  const configTemplate = resolveFromDir(import.meta.url, '../../templates/config.yaml');
   const configContent = fs.readFileSync(configTemplate, 'utf8');
   const config = yaml.parse(configContent);
 

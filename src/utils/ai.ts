@@ -1,8 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { fileURLToPath } from 'url';
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+import { resolveFromDir } from './paths.js';
 
 export interface AICommandOptions {
   content?: string;
@@ -80,7 +78,7 @@ async function handleStoryCreation(context: any): Promise<void> {
   const { options, projectRoot } = context;
   
   // Load story template
-  const templatePath = path.join(__dirname, '../templates/story.md');
+  const templatePath = resolveFromDir(import.meta.url, '../templates/story.md');
   let storyTemplate = fs.readFileSync(templatePath, 'utf8');
 
   // Get project context for AI analysis

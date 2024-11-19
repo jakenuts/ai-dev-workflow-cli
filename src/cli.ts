@@ -11,10 +11,9 @@ import { createFollowCommand } from './commands/follow.js';
 import { loadContext } from './utils/context.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { fileURLToPath } from 'url';
+import { resolveFromDir } from './utils/paths.js';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
+const pkg = JSON.parse(readFileSync(resolveFromDir(import.meta.url, '../package.json'), 'utf8'));
 
 const program = new Command();
 

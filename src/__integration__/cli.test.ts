@@ -3,11 +3,10 @@ import { promisify } from 'node:util';
 import { join } from 'node:path';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { resolveFromDir } from '../utils/paths.js';
 
 const execAsync = promisify(exec);
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const CLI_PATH = join(__dirname, '../../dist/cli.js');
+const CLI_PATH = resolveFromDir(import.meta.url, '../../dist/cli.js');
 
 describe('CLI Integration Tests', () => {
   let tempDir: string;
