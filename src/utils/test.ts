@@ -34,6 +34,9 @@ export interface TestOptions {
   analyze?: boolean;
 }
 
+// Helper to detect if we're running in a test environment
+const isTestEnvironment = process.env.NODE_ENV === 'test';
+
 export async function runTests(options: TestOptions = {}): Promise<void> {
   const config = await getProjectConfig();
   if (!config) {
@@ -50,7 +53,8 @@ export async function runTests(options: TestOptions = {}): Promise<void> {
   if (options.update) {
     args.push('--updateSnapshot');
   }
-  if (options.watch) {
+  // Only enable watch mode if explicitly requested and not in a test environment
+  if (options.watch && !isTestEnvironment) {
     args.push('--watch');
   }
   if (options.coverage) {

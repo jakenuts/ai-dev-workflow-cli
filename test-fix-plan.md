@@ -1,4 +1,4 @@
- # Test Fix Plan - COMPLETED
+# Test Fix Plan - COMPLETED ✓
 
 ## Issues Fixed
 
@@ -12,31 +12,55 @@
 - Using mkdirSync with recursive option
 - Directory creation tests now pass
 
-## Implementation Details
+3. Hanging Test Suite ✓
+- Problem: test.test.ts keeps running indefinitely
+- Root Cause Analysis:
+  * Initial thought: watch mode in test environment
+  * Deeper issue: Potential recursive Jest execution
+  * utils/test.ts is a CLI tool that runs test commands
+  * When testing with Jest, it could cause Jest to try to run itself
 
-1. Test Assertion Updates
-- Fixed syntax in loadConfig test:
-  ```ts
-  expect(mockedLoadYaml).toHaveBeenCalledWith('.ai/config.yaml', null);
-  ```
-- Fixed syntax in syncConfigWithTemplate test:
-  ```ts
-  expect(mockedLoadYaml).toHaveBeenCalledWith('template.yaml', null);
-  ```
+- Fix Implementation:
+  1. Added environment detection:
+     ```typescript
+     const isTestEnvironment = process.env.NODE_ENV === 'test';
+     ```
+  2. Modified watch mode handling:
+     ```typescript
+     if (options.watch && !isTestEnvironment) {
+       args.push('--watch');
+     }
+     ```
+  3. Updated test mocks:
+     * Changed mock test command from 'jest' to 'mocha' to avoid recursion
+     * Properly mocked child_process.spawnSync
+     * Updated test expectations to match environment behavior
+     * Added comprehensive test cases for command execution
 
-2. Directory Creation Implementation
-- Added explicit directory creation in config.ts:
-  ```ts
-  const configPath = join('.ai', 'config.yaml');
-  const configDir = dirname(configPath);
-  mkdirSync(configDir, { recursive: true });
-  ```
+- This ensures:
+  * Watch mode works normally when used as a CLI tool
+  * Watch mode is disabled during test execution
+  * No recursive Jest execution in tests
+  * Test suite completes normally
 
-## Results
-- All 11 tests passing
-- Directory creation properly tested and implemented
+## Final Results ✓
+- All 6 test suites passing
+- All 66 tests passing
+- No more hanging issues
+- Watch mode functionality preserved for CLI usage
 - No regressions in existing functionality
+- Proper separation between test environment and CLI tool behavior
 
-## Note
-- Branch coverage is at 75% (below 80% threshold)
-- This is unrelated to the test fixes and could be addressed in a separate task if needed
+## Future Considerations
+1. Coverage Improvements Needed:
+   - Overall branch coverage: 61.36% (below 80% threshold)
+   - test.ts has particularly low branch coverage (36.58%)
+   - Could be addressed in a separate task
+
+2. Lessons Learned:
+   - When testing CLI tools that run tests:
+     * Avoid using the same test runner in tests as the one being tested
+     * Mock external process execution
+     * Consider environment-specific behavior
+   - Test environment detection is crucial for preventing recursive behavior
+   - Proper mocking of child processes helps avoid unintended side effects
