@@ -1,21 +1,30 @@
 import chalk from 'chalk';
 import { spawnSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
-import { loadYamlFile } from './yaml';
-import { getProjectConfig } from './config';
+import { loadYamlFile } from './yaml.js';
+import { getProjectConfig } from './config.js';
+import type { YAMLObject, YAMLArray, YAMLContent } from '../types/yaml.js';
 
-export interface TestConfig {
+interface TestStep {
+  name: string;
+  command?: string;
+  [key: string]: YAMLContent;
+}
+
+interface TestCase {
   name: string;
   description?: string;
-  tests: Array<{
-    name: string;
-    description?: string;
-    steps: Array<{
-      name: string;
-      command?: string;
-    }>;
-  }>;
+  steps: TestStep[];
+  [key: string]: YAMLContent;
 }
+
+interface BaseTestConfig {
+  name: string;
+  description?: string;
+  tests: TestCase[];
+}
+
+export type TestConfig = YAMLObject<BaseTestConfig>;
 
 export interface TestOptions {
   files?: string;
@@ -120,10 +129,11 @@ export async function loadTestConfig(path: string): Promise<TestConfig> {
     name: 'Default Test Suite',
     tests: []
   };
-  return loadYamlFile(path, defaultConfig);
+  const config = await loadYamlFile<TestConfig>(path, defaultConfig);
+  return config ?? defaultConfig;
 }
 
-export async function runTest(test: TestConfig['tests'][0]): Promise<boolean> {
+export async function runTest(test: TestCase): Promise<boolean> {
   console.log(`\nRunning test: ${test.name}`);
   if (test.description) {
     console.log(test.description);

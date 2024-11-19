@@ -3,8 +3,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {
   executeAICommand,
-  AIAnalysisResult,
-  AICommandOptions,
+  type AIAnalysisResult,
+  type AICommandOptions,
   analyzeBusinessValue,
   generateAcceptanceCriteria,
   analyzeTechnicalImpact,
@@ -18,7 +18,7 @@ import {
   getProjectContext,
   sanitizeFilename,
   getRelevantFiles
-} from '../ai';
+} from '../ai.js';
 
 // Mock fs and path
 jest.mock('fs');

@@ -1,19 +1,26 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { existsSync } from 'fs';
 import { join, dirname } from 'path';
-import { parse, stringify } from 'yaml';
+import { loadYamlFile, saveYamlFile } from './yaml.js';
+import type { YAMLObject, YAMLContent } from '../types/yaml.js';
 
-export interface ProjectConfig {
-  project: {
-    name: string;
-    type: string;
-    description: string;
-  };
+export interface ProjectDetails extends Record<string, YAMLContent> {
+  name: string;
+  type: string;
+  description: string;
+}
+
+export interface TestConfig extends Record<string, YAMLContent> {
+  command: string;
+}
+
+export interface BaseProjectConfig {
+  project: ProjectDetails;
   name: string;
   development_workflow: Record<string, unknown>;
-  test?: {
-    command: string;
-  };
+  test?: TestConfig;
 }
+
+export type ProjectConfig = YAMLObject<BaseProjectConfig>;
 
 /**
  * Load the project configuration from the .ai/config.yaml file
@@ -26,8 +33,8 @@ export async function loadConfig(): Promise<ProjectConfig | null> {
   }
 
   try {
-    const content = readFileSync(configPath, 'utf8');
-    return parse(content);
+    const config = await loadYamlFile<ProjectConfig>(configPath);
+    return config;
   } catch (error) {
     return null;
   }
@@ -51,16 +58,21 @@ export async function syncConfigWithTemplate(templatePath: string): Promise<void
   }
 
   try {
-    const content = readFileSync(templatePath, 'utf8');
-    const template = parse(content);
+    const template = await loadYamlFile<ProjectConfig>(templatePath);
+    if (!template) {
+      throw new Error('Invalid template configuration');
+    }
 
     const configDir = dirname(join('.ai', 'config.yaml'));
-    mkdirSync(configDir, { recursive: true });
-
-    writeFileSync(
+    await saveYamlFile(
       join('.ai', 'config.yaml'),
-      stringify(template),
-      'utf8'
+      template,
+      {
+        indent: 2,
+        lineWidth: -1,
+        noRefs: true,
+        sortKeys: true
+      }
     );
   } catch (error) {
     if (error instanceof Error) {

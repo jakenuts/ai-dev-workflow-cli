@@ -2,6 +2,7 @@
   "name": "ai-dev-workflow-cli",
   "version": "0.2.0",
   "description": "Framework-agnostic AI-guided development workflow tool",
+  "type": "module",
   "main": "dist/index.js",
   "bin": {
     "ai-dev": "./dist/cli.js"
@@ -9,8 +10,9 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js",
-    "dev": "ts-node src/cli.ts",
+    "dev": "ts-node --esm src/cli.ts",
     "test": "jest",
+    "test:integration": "jest --config jest.integration.config.js",
     "lint": "eslint src/**/*.ts",
     "prepare": "npm run build",
     "watch": "tsc -w"

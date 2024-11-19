@@ -1,228 +1,157 @@
 import { jest } from '@jest/globals';
-import * as yaml from '../yaml';
-import * as config from '../config';
+import type { MockedFunction } from 'jest-mock';
+import * as yaml from '../yaml.js';
+import * as config from '../config.js';
 import {
-  loadAIContext,
-  saveAIContext,
-  updateAIContext,
-  clearAIContext,
-  addWorkflowStep,
-  getWorkflowHistory,
-  getCurrentStep,
-  formatWorkflowHistory,
-  AIContext
-} from '../context';
+  loadContext,
+  saveContext,
+  clearContext,
+  addHistoryEntry,
+  displayContext,
+  type ContextData,
+  type ContextDisplayOptions
+} from '../context.js';
+import { mkdir, readFile, writeFile } from 'fs/promises';
+import jsYaml from 'js-yaml';
 
-// Mock dependencies
-jest.mock('../yaml');
-jest.mock('../config');
-jest.mock('chalk', () => ({
-  yellow: jest.fn((str) => `[yellow]${str}[/yellow]`),
-  green: jest.fn((str) => `[green]${str}[/green]`),
-  red: jest.fn((str) => `[red]${str}[/red]`),
-  gray: jest.fn((str) => `[gray]${str}[/gray]`)
+// Mock fs/promises functions
+jest.mock('fs/promises', () => ({
+  mkdir: jest.fn(),
+  readFile: jest.fn(),
+  writeFile: jest.fn()
 }));
 
-const mockedYaml = jest.mocked(yaml);
-const mockedConfig = jest.mocked(config);
+// Get mocked functions with proper types
+const mockedReadFile = readFile as MockedFunction<typeof readFile>;
+const mockedWriteFile = writeFile as MockedFunction<typeof writeFile>;
+const mockedMkdir = mkdir as MockedFunction<typeof mkdir>;
 
-describe('AI Context Utilities', () => {
-  const mockConfig = {
-    project: {
-      name: 'test-project',
-      type: 'test',
-      description: 'Test Project'
-    },
-    name: 'test',
-    development_workflow: {}
-  };
-
-  const defaultContext: AIContext = {
-    config: mockConfig,
-    workflow: {
-      history: []
-    },
-    memory: {}
+describe('Context Management', () => {
+  const mockContextData: ContextData = {
+    currentStep: 'test step',
+    history: [{
+      timestamp: '2023-01-01T00:00:00.000Z',
+      command: 'test command',
+      status: 'success',
+      message: 'test message'
+    }],
+    data: { key: 'value' }
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedConfig.loadConfig.mockResolvedValue(mockConfig);
   });
 
-  describe('loadAIContext', () => {
-    it('should load context with config', async () => {
-      mockedYaml.loadYamlFile.mockResolvedValue(defaultContext);
+  describe('loadContext', () => {
+    it('should load context from file', async () => {
+      mockedReadFile.mockResolvedValue(jsYaml.dump(mockContextData));
 
-      const result = await loadAIContext();
+      const result = await loadContext();
+      expect(result).toEqual(mockContextData);
+      expect(mockedReadFile).toHaveBeenCalled();
+    });
 
-      expect(result).toEqual(defaultContext);
-      expect(mockedConfig.loadConfig).toHaveBeenCalled();
-      expect(mockedYaml.loadYamlFile).toHaveBeenCalled();
+    it('should create default context if file does not exist', async () => {
+      const error = new Error('File not found') as NodeJS.ErrnoException;
+      error.code = 'ENOENT';
+      mockedReadFile.mockRejectedValue(error);
+      mockedWriteFile.mockResolvedValue(undefined);
+
+      const result = await loadContext();
+      expect(result).toEqual({
+        history: [],
+        data: {}
+      });
+      expect(mockedWriteFile).toHaveBeenCalled();
     });
   });
 
-  describe('saveAIContext', () => {
+  describe('saveContext', () => {
     it('should save context to file', async () => {
-      await saveAIContext(defaultContext);
+      mockedMkdir.mockResolvedValue(undefined);
+      mockedWriteFile.mockResolvedValue(undefined);
 
-      expect(mockedYaml.saveYamlFile).toHaveBeenCalledWith(
+      await saveContext(mockContextData);
+      expect(mockedMkdir).toHaveBeenCalled();
+      expect(mockedWriteFile).toHaveBeenCalled();
+    });
+  });
+
+  describe('clearContext', () => {
+    it('should clear all context data', async () => {
+      mockedMkdir.mockResolvedValue(undefined);
+      mockedWriteFile.mockResolvedValue(undefined);
+
+      await clearContext();
+      const expectedEmptyContext = {
+        history: [],
+        data: {}
+      };
+      expect(mockedWriteFile).toHaveBeenCalledWith(
         expect.any(String),
-        defaultContext
+        expect.stringContaining('history: []'),
+        'utf8'
       );
     });
   });
 
-  describe('updateAIContext', () => {
-    it('should update existing context', async () => {
-      const updates = {
-        currentStep: 'new-step',
-        memory: { key: 'value' }
+  describe('addHistoryEntry', () => {
+    it('should add entry to history', async () => {
+      const initialContext: ContextData = {
+        history: [],
+        data: {}
+      };
+      mockedReadFile.mockResolvedValue(jsYaml.dump(initialContext));
+      mockedWriteFile.mockResolvedValue(undefined);
+
+      await addHistoryEntry('test command', 'success', 'test message');
+      
+      expect(mockedWriteFile).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.stringContaining('test command'),
+        'utf8'
+      );
+    });
+
+    it('should limit history to 100 entries', async () => {
+      const longHistory = Array(101).fill({
+        timestamp: '2023-01-01T00:00:00.000Z',
+        command: 'old command',
+        status: 'success'
+      });
+
+      const initialContext: ContextData = {
+        history: longHistory,
+        data: {}
       };
 
-      mockedYaml.loadYamlFile.mockResolvedValue(defaultContext);
+      mockedReadFile.mockResolvedValue(jsYaml.dump(initialContext));
+      mockedWriteFile.mockResolvedValue(undefined);
 
-      await updateAIContext(updates);
-
-      expect(mockedYaml.saveYamlFile).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          ...defaultContext,
-          ...updates
-        })
-      );
+      await addHistoryEntry('new command', 'success');
+      
+      const [[, yamlContent]] = mockedWriteFile.mock.calls;
+      const savedContext = jsYaml.load(yamlContent as string) as ContextData;
+      expect(savedContext.history.length).toBe(100);
+      expect(savedContext.history[99].command).toBe('new command');
     });
   });
 
-  describe('clearAIContext', () => {
-    it('should reset context to default state', async () => {
-      await clearAIContext();
+  describe('displayContext', () => {
+    const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
-      expect(mockedYaml.saveYamlFile).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          config: mockConfig,
-          workflow: { history: [] },
-          memory: {}
-        })
-      );
-    });
-  });
-
-  describe('addWorkflowStep', () => {
-    it('should add step to workflow history', async () => {
-      mockedYaml.loadYamlFile.mockResolvedValue(defaultContext);
-
-      await addWorkflowStep('test-step', 'completed', 'test note');
-
-      expect(mockedYaml.saveYamlFile).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          workflow: {
-            currentStep: 'test-step',
-            history: [
-              expect.objectContaining({
-                step: 'test-step',
-                status: 'completed',
-                notes: 'test note'
-              })
-            ]
-          }
-        })
-      );
-    });
-  });
-
-  describe('getWorkflowHistory', () => {
-    it('should return workflow history', async () => {
-      const contextWithHistory = {
-        ...defaultContext,
-        workflow: {
-          history: [
-            {
-              step: 'test-step',
-              timestamp: new Date().toISOString(),
-              status: 'completed',
-              notes: 'test note'
-            }
-          ]
-        }
-      };
-
-      mockedYaml.loadYamlFile.mockResolvedValue(contextWithHistory);
-
-      const result = await getWorkflowHistory();
-
-      expect(result).toEqual(contextWithHistory.workflow.history);
-    });
-  });
-
-  describe('getCurrentStep', () => {
-    it('should return current step', async () => {
-      const contextWithStep = {
-        ...defaultContext,
-        workflow: {
-          currentStep: 'current-step',
-          history: []
-        }
-      };
-
-      mockedYaml.loadYamlFile.mockResolvedValue(contextWithStep);
-
-      const result = await getCurrentStep();
-
-      expect(result).toBe('current-step');
-    });
-  });
-
-  describe('formatWorkflowHistory', () => {
-    it('should format empty history', () => {
-      const result = formatWorkflowHistory([]);
-
-      expect(result).toBe('[yellow]No workflow steps recorded yet.[/yellow]');
+    afterEach(() => {
+      mockConsoleLog.mockClear();
     });
 
-    it('should format history entries', () => {
-      const history = [
-        {
-          step: 'test-step',
-          timestamp: '2023-01-01T00:00:00.000Z',
-          status: 'completed' as const,
-          notes: 'test note'
-        }
-      ];
-
-      const result = formatWorkflowHistory(history);
-
-      expect(result).toContain('[green]✓[/green]');
-      expect(result).toContain('test-step');
-      expect(result).toContain('[gray]test note[/gray]');
+    it('should display context information', async () => {
+      await displayContext(mockContextData, { verbose: true });
+      expect(mockConsoleLog).toHaveBeenCalled();
     });
 
-    it('should handle different status types', () => {
-      const history = [
-        {
-          step: 'completed-step',
-          timestamp: '2023-01-01T00:00:00.000Z',
-          status: 'completed' as const
-        },
-        {
-          step: 'failed-step',
-          timestamp: '2023-01-01T00:00:00.000Z',
-          status: 'failed' as const
-        },
-        {
-          step: 'skipped-step',
-          timestamp: '2023-01-01T00:00:00.000Z',
-          status: 'skipped' as const
-        }
-      ];
-
-      const result = formatWorkflowHistory(history);
-
-      expect(result).toContain('[green]✓[/green]');
-      expect(result).toContain('[red]✗[/red]');
-      expect(result).toContain('[yellow]⚠[/yellow]');
+    it('should limit history display when not verbose', async () => {
+      await displayContext(mockContextData, { verbose: false });
+      expect(mockConsoleLog).toHaveBeenCalled();
     });
   });
 });

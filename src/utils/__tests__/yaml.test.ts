@@ -1,7 +1,8 @@
 import { jest } from '@jest/globals';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
-import { loadYamlFile, saveYamlFile, mergeYamlFiles } from '../yaml';
+import { loadYamlFile, saveYamlFile, mergeYamlFiles, type DeepPartial } from '../yaml.js';
+import type { YAMLContent, YAMLObject } from '../../types/yaml.js';
 
 // Mock fs/promises
 jest.mock('fs/promises');
@@ -19,12 +20,12 @@ describe('YAML Utilities', () => {
   describe('loadYamlFile', () => {
     it('should load and parse yaml file', async () => {
       const mockContent = 'key: value';
-      const mockParsed = { key: 'value' };
+      const mockParsed: YAMLObject = { key: 'value' };
       
       mockedFs.readFile.mockResolvedValue(mockContent);
       mockedYaml.load.mockReturnValue(mockParsed);
 
-      const result = await loadYamlFile('test.yaml');
+      const result = await loadYamlFile<YAMLObject>('test.yaml');
       
       expect(result).toEqual(mockParsed);
       expect(mockedFs.readFile).toHaveBeenCalledWith('test.yaml', 'utf8');
@@ -32,13 +33,13 @@ describe('YAML Utilities', () => {
     });
 
     it('should return default content if file does not exist', async () => {
-      const defaultContent = { default: true };
+      const defaultContent: YAMLObject = { default: true };
       const error = new Error('ENOENT');
       (error as NodeJS.ErrnoException).code = 'ENOENT';
       
       mockedFs.readFile.mockRejectedValue(error);
 
-      const result = await loadYamlFile('test.yaml', defaultContent);
+      const result = await loadYamlFile<YAMLObject>('test.yaml', defaultContent);
       
       expect(result).toEqual(defaultContent);
       expect(mockedFs.writeFile).toHaveBeenCalled();
@@ -51,12 +52,12 @@ describe('YAML Utilities', () => {
     });
 
     it('should return default content if yaml content is null', async () => {
-      const defaultContent = { default: true };
+      const defaultContent: YAMLObject = { default: true };
       
       mockedFs.readFile.mockResolvedValue('');
       mockedYaml.load.mockReturnValue(null);
 
-      const result = await loadYamlFile('test.yaml', defaultContent);
+      const result = await loadYamlFile<YAMLObject>('test.yaml', defaultContent);
       
       expect(result).toEqual(defaultContent);
     });
@@ -64,7 +65,7 @@ describe('YAML Utilities', () => {
 
   describe('saveYamlFile', () => {
     it('should save content as yaml', async () => {
-      const content = { key: 'value' };
+      const content: YAMLObject = { key: 'value' };
       const yamlString = 'key: value\n';
       
       mockedYaml.dump.mockReturnValue(yamlString);
@@ -82,7 +83,7 @@ describe('YAML Utilities', () => {
     });
 
     it('should create directory if it does not exist', async () => {
-      const content = { key: 'value' };
+      const content: YAMLObject = { key: 'value' };
       const yamlString = 'key: value\n';
       
       mockedYaml.dump.mockReturnValue(yamlString);
@@ -94,9 +95,21 @@ describe('YAML Utilities', () => {
   });
 
   describe('mergeYamlFiles', () => {
+    interface TestObject extends Record<string, unknown> {
+      a?: number;
+      b?: number;
+      c?: number;
+      arr?: number[];
+      nested?: {
+        a?: number;
+        b?: number;
+        c?: number;
+      };
+    }
+
     it('should merge two objects', () => {
-      const base = { a: 1, b: 2 };
-      const overlay = { b: 3, c: 4 };
+      const base: TestObject = { a: 1, b: 2 };
+      const overlay: DeepPartial<TestObject> = { b: 3, c: 4 };
       
       const result = mergeYamlFiles(base, overlay);
       
@@ -104,8 +117,8 @@ describe('YAML Utilities', () => {
     });
 
     it('should handle null or undefined values', () => {
-      const base = { a: 1, b: 2 };
-      const overlay = { b: null, c: undefined };
+      const base: TestObject = { a: 1, b: 2 };
+      const overlay: DeepPartial<TestObject> = { b: undefined };
       
       const result = mergeYamlFiles(base, overlay);
       
@@ -113,8 +126,8 @@ describe('YAML Utilities', () => {
     });
 
     it('should merge arrays', () => {
-      const base = { arr: [1, 2] };
-      const overlay = { arr: [3, 4] };
+      const base: TestObject = { arr: [1, 2] };
+      const overlay: DeepPartial<TestObject> = { arr: [3, 4] };
       
       const result = mergeYamlFiles(base, overlay);
       
@@ -122,30 +135,30 @@ describe('YAML Utilities', () => {
     });
 
     it('should handle nested objects', () => {
-      const base = { nested: { a: 1, b: 2 } };
-      const overlay = { nested: { b: 3, c: 4 } };
+      const base: TestObject = { nested: { a: 1, b: 2 } };
+      const overlay: DeepPartial<TestObject> = { nested: { b: 3, c: 4 } };
       
       const result = mergeYamlFiles(base, overlay);
       
       expect(result).toEqual({ nested: { a: 1, b: 3, c: 4 } });
     });
 
-    it('should return overlay if base is not an object', () => {
-      const base = null;
-      const overlay = { a: 1 };
+    it('should handle empty base object', () => {
+      const base: TestObject = {};
+      const overlay: DeepPartial<TestObject> = { a: 1 };
       
       const result = mergeYamlFiles(base, overlay);
       
-      expect(result).toEqual(overlay);
+      expect(result).toEqual({ a: 1 });
     });
 
-    it('should return base if overlay is not an object', () => {
-      const base = { a: 1 };
-      const overlay = null;
+    it('should handle empty overlay object', () => {
+      const base: TestObject = { a: 1 };
+      const overlay: DeepPartial<TestObject> = {};
       
       const result = mergeYamlFiles(base, overlay);
       
-      expect(result).toEqual(base);
+      expect(result).toEqual({ a: 1 });
     });
   });
 });

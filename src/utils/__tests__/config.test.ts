@@ -1,23 +1,27 @@
 import { jest } from '@jest/globals';
+import type { MockedFunction } from 'jest-mock';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as yaml from 'yaml';
-import { loadConfig, getProjectConfig, syncConfigWithTemplate, ProjectConfig } from '../config';
+import { loadConfig, getProjectConfig, syncConfigWithTemplate } from '../config.js';
+import { loadYamlFile, saveYamlFile } from '../yaml.js';
+import type { ProjectConfig } from '../config.js';
 
 // Mock dependencies
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
-  readFileSync: jest.fn(),
-  writeFileSync: jest.fn(),
   mkdirSync: jest.fn()
 }));
 jest.mock('path');
-jest.mock('yaml');
+jest.mock('../yaml.js', () => ({
+  loadYamlFile: jest.fn(),
+  saveYamlFile: jest.fn()
+}));
 
 // Get mocked modules
 const mockedFs = jest.mocked(fs);
 const mockedPath = jest.mocked(path);
-const mockedYaml = jest.mocked(yaml);
+const mockedLoadYaml = loadYamlFile as MockedFunction<typeof loadYamlFile>;
+const mockedSaveYaml = saveYamlFile as MockedFunction<typeof saveYamlFile>;
 
 describe('Config Utilities', () => {
   const mockConfig: ProjectConfig = {
@@ -39,20 +43,16 @@ describe('Config Utilities', () => {
 
     // Setup default mocks
     mockedFs.existsSync.mockReturnValue(true);
-    mockedFs.readFileSync.mockReturnValue('config content');
-    mockedYaml.parse.mockReturnValue(mockConfig);
   });
 
   describe('loadConfig', () => {
     it('should load and parse config file', async () => {
+      mockedLoadYaml.mockResolvedValue(mockConfig);
+
       const result = await loadConfig();
 
       expect(result).toEqual(mockConfig);
-      expect(mockedFs.readFileSync).toHaveBeenCalledWith(
-        '.ai/config.yaml',
-        'utf8'
-      );
-      expect(mockedYaml.parse).toHaveBeenCalledWith('config content');
+      expect(mockedLoadYaml).toHaveBeenCalledWith('.ai/config.yaml', null);
     });
 
     it('should return null if config file does not exist', async () => {
@@ -64,9 +64,7 @@ describe('Config Utilities', () => {
     });
 
     it('should return null on read error', async () => {
-      mockedFs.readFileSync.mockImplementation(() => {
-        throw new Error('Read failed');
-      });
+      mockedLoadYaml.mockRejectedValue(new Error('Read failed'));
 
       const result = await loadConfig();
 
@@ -76,6 +74,8 @@ describe('Config Utilities', () => {
 
   describe('getProjectConfig', () => {
     it('should return project config', async () => {
+      mockedLoadYaml.mockResolvedValue(mockConfig);
+
       const result = await getProjectConfig();
 
       expect(result).toEqual(mockConfig);
@@ -90,9 +90,7 @@ describe('Config Utilities', () => {
     });
 
     it('should return null on read error', async () => {
-      mockedFs.readFileSync.mockImplementation(() => {
-        throw new Error('Read failed');
-      });
+      mockedLoadYaml.mockRejectedValue(new Error('Read failed'));
 
       const result = await getProjectConfig();
 
@@ -110,20 +108,17 @@ describe('Config Utilities', () => {
         }
       };
 
-      mockedFs.readFileSync.mockReturnValue('template content');
-      mockedYaml.parse.mockReturnValue(mockTemplate);
-      mockedYaml.stringify.mockReturnValue('stringified template');
+      mockedLoadYaml.mockResolvedValue(mockTemplate);
       mockedPath.dirname.mockReturnValue('.ai');
 
       await syncConfigWithTemplate('template.yaml');
 
-      expect(mockedFs.readFileSync).toHaveBeenCalledWith('template.yaml', 'utf8');
+      expect(mockedLoadYaml).toHaveBeenCalledWith('template.yaml', null);
       expect(mockedFs.mkdirSync).toHaveBeenCalledWith('.ai', { recursive: true });
-      expect(mockedYaml.stringify).toHaveBeenCalledWith(mockTemplate);
-      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
+      expect(mockedSaveYaml).toHaveBeenCalledWith(
         '.ai/config.yaml',
-        'stringified template',
-        'utf8'
+        mockTemplate,
+        expect.any(Object)
       );
     });
 
@@ -144,9 +139,7 @@ describe('Config Utilities', () => {
         }
       };
 
-      mockedFs.readFileSync.mockReturnValue('template content');
-      mockedYaml.parse.mockReturnValue(mockTemplate);
-      mockedYaml.stringify.mockReturnValue('stringified template');
+      mockedLoadYaml.mockResolvedValue(mockTemplate);
       mockedPath.dirname.mockReturnValue('.ai');
 
       await syncConfigWithTemplate('template.yaml');
@@ -155,10 +148,7 @@ describe('Config Utilities', () => {
     });
 
     it('should handle template parsing errors', async () => {
-      mockedFs.readFileSync.mockReturnValue('invalid yaml');
-      mockedYaml.parse.mockImplementation(() => {
-        throw new Error('Invalid YAML');
-      });
+      mockedLoadYaml.mockRejectedValue(new Error('Invalid YAML'));
 
       await expect(syncConfigWithTemplate('template.yaml'))
         .rejects
@@ -174,39 +164,12 @@ describe('Config Utilities', () => {
         }
       };
 
-      mockedFs.readFileSync.mockReturnValue('template content');
-      mockedYaml.parse.mockReturnValue(mockTemplate);
-      mockedYaml.stringify.mockReturnValue('stringified template');
-      mockedPath.dirname.mockReturnValue('.ai');
-      mockedFs.writeFileSync.mockImplementation(() => {
-        throw new Error('Write failed');
-      });
+      mockedLoadYaml.mockResolvedValue(mockTemplate);
+      mockedSaveYaml.mockRejectedValue(new Error('Write failed'));
 
       await expect(syncConfigWithTemplate('template.yaml'))
         .rejects
         .toThrow('Write failed');
-    });
-
-    it('should handle mkdir errors', async () => {
-      const mockTemplate = {
-        project: {
-          name: 'template-project',
-          type: 'template',
-          description: 'Template Project'
-        }
-      };
-
-      mockedFs.readFileSync.mockReturnValue('template content');
-      mockedYaml.parse.mockReturnValue(mockTemplate);
-      mockedYaml.stringify.mockReturnValue('stringified template');
-      mockedPath.dirname.mockReturnValue('.ai');
-      mockedFs.mkdirSync.mockImplementation(() => {
-        throw new Error('Mkdir failed');
-      });
-
-      await expect(syncConfigWithTemplate('template.yaml'))
-        .rejects
-        .toThrow('Mkdir failed');
     });
   });
 });
