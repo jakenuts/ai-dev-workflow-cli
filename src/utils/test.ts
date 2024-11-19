@@ -1,10 +1,10 @@
-import { loadAIContext } from './context.js';
+import { loadAIContext } from './context';
 import { spawnSync } from 'child_process';
-import { getProjectConfig } from './config.js';
+import { getProjectConfig } from './config';
 import fs from 'fs';
 import path from 'path';
 import { join } from 'path';
-import { loadYamlFile } from './yaml.js';
+import { loadYamlFile } from './yaml';
 
 interface TestOptions {
   files?: string;

@@ -1,9 +1,9 @@
 import { join } from 'path';
-import { loadYamlFile, saveYamlFile } from './yaml.js';
-import { loadConfig, ProjectConfig } from './config.js';
+import { loadYamlFile, saveYamlFile } from './yaml';
+import { loadConfig, ProjectConfig } from './config';
 import chalk from 'chalk';
 
-interface AIContext {
+export interface AIContext {
   config: ProjectConfig | null;
   workflow: {
     currentStep?: string;
@@ -89,10 +89,10 @@ export function formatWorkflowHistory(history: AIContext['workflow']['history'])
 
   return history.map(entry => {
     const timestamp = new Date(entry.timestamp).toLocaleString();
-    const status = entry.status === 'completed'
-      ? chalk.green('✓')
+    const status = entry.status === 'completed' 
+      ? chalk.green('✓') 
       : entry.status === 'failed'
-        ? chalk.red('✗')
+        ? chalk.red('✗') 
         : chalk.yellow('⚠');
 
     let line = `${status} ${entry.step} (${timestamp})`;
