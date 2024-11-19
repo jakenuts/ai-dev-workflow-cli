@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { loadYamlFile, saveYamlFile } from './yaml.js';
 import type { YAMLObject, YAMLContent } from '../types/yaml.js';
@@ -33,7 +33,7 @@ export async function loadConfig(): Promise<ProjectConfig | null> {
   }
 
   try {
-    const config = await loadYamlFile<ProjectConfig>(configPath);
+    const config = await loadYamlFile<ProjectConfig>(configPath, null);
     return config;
   } catch (error) {
     return null;
@@ -58,14 +58,19 @@ export async function syncConfigWithTemplate(templatePath: string): Promise<void
   }
 
   try {
-    const template = await loadYamlFile<ProjectConfig>(templatePath);
+    const template = await loadYamlFile<ProjectConfig>(templatePath, null);
     if (!template) {
       throw new Error('Invalid template configuration');
     }
 
-    const configDir = dirname(join('.ai', 'config.yaml'));
+    const configPath = join('.ai', 'config.yaml');
+    const configDir = dirname(configPath);
+    
+    // Explicitly create the config directory
+    mkdirSync(configDir, { recursive: true });
+
     await saveYamlFile(
-      join('.ai', 'config.yaml'),
+      configPath,
       template,
       {
         indent: 2,
