@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import * as fs from 'fs/promises';
 import * as yaml from 'js-yaml';
+import chalk from 'chalk';
 import {
   loadContext,
   saveContext,
@@ -22,16 +23,20 @@ jest.mock('js-yaml', () => ({
 
 // Mock chalk
 jest.mock('chalk', () => ({
-  yellow: jest.fn((str) => `[yellow]${str}[/yellow]`),
-  green: jest.fn((str) => `[green]${str}[/green]`),
-  red: jest.fn((str) => `[red]${str}[/red]`),
-  gray: jest.fn((str) => `[gray]${str}[/gray]`)
+  __esModule: true,
+  default: {
+    yellow: jest.fn().mockImplementation((str: unknown) => `[yellow]${String(str).trim()}[/yellow]`),
+    green: jest.fn().mockImplementation((str: unknown) => `[green]${String(str).trim()}[/green]`),
+    red: jest.fn().mockImplementation((str: unknown) => `[red]${String(str).trim()}[/red]`),
+    gray: jest.fn().mockImplementation((str: unknown) => `[gray]${String(str).trim()}[/gray]`)
+  }
 }));
 
-// Mock console.log for displayContext tests
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+const mockedChalk = jest.mocked(chalk);
 
 describe('Context Service', () => {
+  let mockConsoleLog: jest.MockedFunction<typeof console.log>;
+
   beforeEach(() => {
     // Clear all mocks before each test
     jest.clearAllMocks();
@@ -42,6 +47,13 @@ describe('Context Service', () => {
       }
       return null;
     });
+
+    // Reset console.log mock before each test
+    mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {}) as jest.MockedFunction<typeof console.log>;
+  });
+
+  afterEach(() => {
+    mockConsoleLog.mockRestore();
   });
 
   describe('loadContext', () => {
@@ -177,12 +189,12 @@ describe('Context Service', () => {
 
       await displayContext(mockContext, { verbose: true });
 
-      const calls = mockConsoleLog.mock.calls;
-      expect(calls[0][0]).toContain('[yellow]Current Step:[/yellow]');
-      expect(calls[0][0]).toContain('current-step');
-      expect(calls[1][0]).toContain('[yellow]Command History:[/yellow]');
-      expect(calls[2][0]).toContain('[green]✓[/green]');
-      expect(calls[2][0]).toContain('test message');
+      const calls = mockConsoleLog.mock.calls.map(call => call[0]);
+      expect(calls).toContain('[yellow]Current Step:[/yellow]');
+      expect(calls).toContain('[yellow]Command History:[/yellow]');
+      expect(calls.some(call => call.includes('[green]✓[/green]'))).toBe(true);
+      expect(calls.some(call => call.includes('test message'))).toBe(true);
+      expect(calls).toContain('[yellow]Stored Data:[/yellow]');
     });
 
     it('should display limited history without verbose option', async () => {
@@ -197,10 +209,10 @@ describe('Context Service', () => {
 
       await displayContext(mockContext, { verbose: false });
 
-      const calls = mockConsoleLog.mock.calls;
-      expect(calls[0][0]).toContain('[yellow]Command History:[/yellow]');
-      expect(calls[6][0]).toContain('[gray]... and 5 more entries[/gray]');
-      expect(calls[7][0]).toContain('[green]Tip: Use --verbose flag to see all history and stored data[/green]');
+      const calls = mockConsoleLog.mock.calls.map(call => call[0]);
+      expect(calls).toContain('[yellow]Command History:[/yellow]');
+      expect(calls).toContain('[gray]... and 5 more entries[/gray]');
+      expect(calls).toContain('[green]Tip: Use --verbose flag to see all history and stored data[/green]');
     });
   });
 });

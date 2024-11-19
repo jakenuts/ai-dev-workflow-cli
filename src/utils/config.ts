@@ -1,23 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import yaml from 'yaml';
-
-interface WorkflowStep {
-  type: string;
-  status: string;
-  title: string;
-  description?: string;
-  command?: string;
-  args?: string[];
-  guidelines?: string[];
-  files?: string[];
-  steps?: string[];
-}
-
-interface WorkflowConfig {
-  description: string;
-  steps: Record<string, WorkflowStep>;
-}
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
+import { parse, stringify } from 'yaml';
 
 export interface ProjectConfig {
   project: {
@@ -26,44 +9,63 @@ export interface ProjectConfig {
     description: string;
   };
   name: string;
-  description?: string;
-  version?: string;
-  development_workflow: {
-    [key: string]: WorkflowConfig;
-  };
+  development_workflow: Record<string, unknown>;
   test?: {
-    command?: string;
+    command: string;
   };
 }
 
+/**
+ * Load the project configuration from the .ai/config.yaml file
+ * @returns The project configuration or null if not found
+ */
 export async function loadConfig(): Promise<ProjectConfig | null> {
-  const configPath = path.join(process.cwd(), '.ai', 'config.yaml');
-  
-  if (!fs.existsSync(configPath)) {
+  const configPath = join('.ai', 'config.yaml');
+  if (!existsSync(configPath)) {
     return null;
   }
 
-  const configContent = fs.readFileSync(configPath, 'utf8');
-  return yaml.parse(configContent);
+  try {
+    const content = readFileSync(configPath, 'utf8');
+    return parse(content);
+  } catch (error) {
+    return null;
+  }
 }
 
+/**
+ * Get the project configuration
+ * @returns The project configuration or null if not found
+ */
 export async function getProjectConfig(): Promise<ProjectConfig | null> {
   return loadConfig();
 }
 
+/**
+ * Sync the project configuration with a template
+ * @param templatePath Path to the template file
+ */
 export async function syncConfigWithTemplate(templatePath: string): Promise<void> {
-  const configPath = path.join(process.cwd(), '.ai', 'config.yaml');
-  
-  if (!fs.existsSync(templatePath)) {
+  if (!existsSync(templatePath)) {
     throw new Error(`Template not found: ${templatePath}`);
   }
 
-  const templateContent = fs.readFileSync(templatePath, 'utf8');
-  const template = yaml.parse(templateContent);
+  try {
+    const content = readFileSync(templatePath, 'utf8');
+    const template = parse(content);
 
-  if (!fs.existsSync(path.dirname(configPath))) {
-    fs.mkdirSync(path.dirname(configPath), { recursive: true });
+    const configDir = dirname(join('.ai', 'config.yaml'));
+    mkdirSync(configDir, { recursive: true });
+
+    writeFileSync(
+      join('.ai', 'config.yaml'),
+      stringify(template),
+      'utf8'
+    );
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to sync config with template');
   }
-
-  fs.writeFileSync(configPath, yaml.stringify(template));
 }
