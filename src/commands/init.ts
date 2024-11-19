@@ -3,6 +3,9 @@ import path from 'path';
 import inquirer from 'inquirer';
 import yaml from 'yaml';
 import { copyTemplate } from '../utils/files.js';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 interface InitOptions {
   type?: string;

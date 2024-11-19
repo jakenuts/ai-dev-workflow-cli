@@ -1,5 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+
 
 export function copyTemplate(type: string, projectType: string, targetDir: string) {
   const templateDir = path.join(__dirname, '../../templates', type, projectType);
