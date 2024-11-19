@@ -5,35 +5,15 @@ import * as fs from 'fs';
 import path from 'path';
 import type { ProjectConfig } from '../config';
 import type { AIContext } from '../context';
-import * as contextModule from '../context';
-import * as configModule from '../config';
-import * as yamlModule from '../yaml';
 
 // Mock dependencies
 jest.mock('child_process');
 jest.mock('fs');
 jest.mock('../context');
-jest.mock('../config');
-jest.mock('../yaml');
 
-// Mock chalk
-jest.mock('chalk', () => ({
-  default: {
-    yellow: jest.fn((str: string) => `[yellow]${str}[/yellow]`),
-    green: jest.fn((str: string) => `[green]${str}[/green]`),
-    red: jest.fn((str: string) => `[red]${str}[/red]`),
-    gray: jest.fn((str: string) => `[gray]${str}[/gray]`)
-  }
-}));
-
-// Create mock implementations
-const mockContext: AIContext = {
-  config: null,
-  workflow: { history: [] },
-  memory: {}
-};
-
-const mockConfig: ProjectConfig = {
+// Create mock implementation for getProjectConfig
+const mockGetProjectConfig = jest.fn<() => Promise<ProjectConfig>>();
+mockGetProjectConfig.mockResolvedValue({
   project: {
     name: 'test-project',
     type: 'test',
@@ -42,21 +22,28 @@ const mockConfig: ProjectConfig = {
   name: 'test',
   development_workflow: {},
   test: { command: 'jest' }
-};
+});
 
-// Setup mocked functions
-const mockedContext = jest.mocked(contextModule);
-const mockedConfig = jest.mocked(configModule);
-const mockedYaml = jest.mocked(yamlModule);
+// Mock config module
+jest.mock('../config', () => ({
+  getProjectConfig: mockGetProjectConfig
+}));
+
+jest.mock('../yaml', () => ({
+  loadYamlFile: jest.fn().mockImplementation((_, defaultConfig) => Promise.resolve(defaultConfig))
+}));
+
+// Mock chalk
+jest.mock('chalk', () => ({
+  yellow: jest.fn((str) => `[yellow]${str}[/yellow]`),
+  green: jest.fn((str) => `[green]${str}[/green]`),
+  red: jest.fn((str) => `[red]${str}[/red]`),
+  gray: jest.fn((str) => `[gray]${str}[/gray]`)
+}));
 
 describe('Test Utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Setup mock implementations
-    mockedContext.loadAIContext.mockResolvedValue(mockContext);
-    mockedConfig.getProjectConfig.mockResolvedValue(mockConfig);
-    mockedYaml.loadYamlFile.mockImplementation((_, defaultConfig) => Promise.resolve(defaultConfig));
   });
 
   describe('runTests', () => {
@@ -127,6 +114,97 @@ describe('Test Utilities', () => {
 
       await expect(runTests({})).rejects.toThrow('Tests failed with exit code 1');
     });
+
+    it('should analyze test results when requested', async () => {
+      const mockSpawnSync = jest.spyOn(childProcess, 'spawnSync').mockReturnValue({
+        status: 0,
+        stdout: Buffer.from(''),
+        stderr: Buffer.from(''),
+        pid: 123,
+        output: [],
+        signal: null
+      });
+
+      const mockResults = {
+        suites: 5,
+        tests: 10,
+        failures: 0,
+        duration: 1000,
+        coverage: {
+          statements: { pct: 90 },
+          branches: { pct: 85 },
+          functions: { pct: 95 },
+          lines: { pct: 92 }
+        }
+      };
+
+      jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(mockResults));
+
+      await runTests({ analyze: true });
+
+      expect(mockSpawnSync).toHaveBeenCalledWith(
+        'jest',
+        expect.arrayContaining(['--json', '--outputFile=.ai/test-results.json']),
+        expect.any(Object)
+      );
+    });
+
+    it('should handle missing test results file', async () => {
+      const mockSpawnSync = jest.spyOn(childProcess, 'spawnSync').mockReturnValue({
+        status: 0,
+        stdout: Buffer.from(''),
+        stderr: Buffer.from(''),
+        pid: 123,
+        output: [],
+        signal: null
+      });
+
+      jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+
+      await runTests({ analyze: true });
+
+      expect(mockSpawnSync).toHaveBeenCalledWith(
+        'jest',
+        expect.arrayContaining(['--json', '--outputFile=.ai/test-results.json']),
+        expect.any(Object)
+      );
+    });
+
+    it('should handle slow test performance', async () => {
+      const mockSpawnSync = jest.spyOn(childProcess, 'spawnSync').mockReturnValue({
+        status: 0,
+        stdout: Buffer.from(''),
+        stderr: Buffer.from(''),
+        pid: 123,
+        output: [],
+        signal: null
+      });
+
+      const mockResults = {
+        suites: 5,
+        tests: 10,
+        failures: 0,
+        duration: 6000,
+        coverage: {
+          statements: { pct: 90 },
+          branches: { pct: 85 },
+          functions: { pct: 95 },
+          lines: { pct: 92 }
+        }
+      };
+
+      jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(mockResults));
+
+      await runTests({ analyze: true });
+
+      expect(mockSpawnSync).toHaveBeenCalledWith(
+        'jest',
+        expect.arrayContaining(['--json', '--outputFile=.ai/test-results.json']),
+        expect.any(Object)
+      );
+    });
   });
 
   describe('loadTestConfig', () => {
@@ -160,6 +238,22 @@ describe('Test Utilities', () => {
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Test Suite'));
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Step 1'));
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('test command'));
+    });
+
+    it('should handle test steps without commands', async () => {
+      const mockTest = {
+        name: 'Test Suite',
+        description: 'Test Description',
+        steps: [
+          {
+            name: 'Step 1'
+          }
+        ]
+      };
+
+      const result = await runTest(mockTest);
+
+      expect(result).toBe(true);
     });
   });
 });

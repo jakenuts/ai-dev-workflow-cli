@@ -3,7 +3,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  testMatch: ['**/__tests__/**/*.ts'],
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       tsconfig: 'tsconfig.json',
@@ -15,7 +15,9 @@ module.exports = {
   ],
   moduleNameMapper: {
     '#(.*)': '<rootDir>/node_modules/$1',
-    '^chalk$': '<rootDir>/node_modules/chalk/source/index.js'
+    '^chalk$': '<rootDir>/node_modules/chalk/source/index.js',
+    '^ansi-styles$': '<rootDir>/node_modules/ansi-styles/index.js',
+    '^supports-color$': '<rootDir>/node_modules/supports-color/index.js'
   },
   extensionsToTreatAsEsm: ['.ts'],
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
@@ -29,5 +31,6 @@ module.exports = {
       lines: 80,
       statements: 80
     }
-  }
+  },
+  setupFiles: ['<rootDir>/jest.setup.js']
 }

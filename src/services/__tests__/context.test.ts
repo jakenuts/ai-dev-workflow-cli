@@ -177,12 +177,12 @@ describe('Context Service', () => {
 
       await displayContext(mockContext, { verbose: true });
 
-      const calls = mockConsoleLog.mock.calls.map(call => call[0]).join('\n');
-      expect(calls).toContain('[yellow]Current Step:[/yellow]');
-      expect(calls).toContain('current-step');
-      expect(calls).toContain('[yellow]Command History:[/yellow]');
-      expect(calls).toContain('[green]✓[/green]');
-      expect(calls).toContain('test message');
+      const calls = mockConsoleLog.mock.calls;
+      expect(calls[0][0]).toContain('[yellow]Current Step:[/yellow]');
+      expect(calls[0][0]).toContain('current-step');
+      expect(calls[1][0]).toContain('[yellow]Command History:[/yellow]');
+      expect(calls[2][0]).toContain('[green]✓[/green]');
+      expect(calls[2][0]).toContain('test message');
     });
 
     it('should display limited history without verbose option', async () => {
@@ -197,10 +197,10 @@ describe('Context Service', () => {
 
       await displayContext(mockContext, { verbose: false });
 
-      const calls = mockConsoleLog.mock.calls.map(call => call[0]).join('\n');
-      expect(calls).toContain('[yellow]Command History:[/yellow]');
-      expect(calls).toContain('[gray]... and 5 more entries[/gray]');
-      expect(calls).toContain('[green]Tip: Use --verbose flag to see all history and stored data[/green]');
+      const calls = mockConsoleLog.mock.calls;
+      expect(calls[0][0]).toContain('[yellow]Command History:[/yellow]');
+      expect(calls[6][0]).toContain('[gray]... and 5 more entries[/gray]');
+      expect(calls[7][0]).toContain('[green]Tip: Use --verbose flag to see all history and stored data[/green]');
     });
   });
 });

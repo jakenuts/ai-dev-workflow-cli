@@ -5,39 +5,46 @@ import * as yaml from 'yaml';
 import { loadConfig, getProjectConfig, syncConfigWithTemplate, ProjectConfig } from '../config';
 
 // Mock dependencies
-jest.mock('fs');
+jest.mock('fs', () => ({
+  existsSync: jest.fn(),
+  readFileSync: jest.fn(),
+  writeFileSync: jest.fn(),
+  mkdirSync: jest.fn()
+}));
 jest.mock('path');
 jest.mock('yaml');
 
+// Get mocked modules
 const mockedFs = jest.mocked(fs);
 const mockedPath = jest.mocked(path);
 const mockedYaml = jest.mocked(yaml);
 
 describe('Config Utilities', () => {
+  const mockConfig: ProjectConfig = {
+    project: {
+      name: 'test-project',
+      type: 'test',
+      description: 'Test Project'
+    },
+    name: 'test',
+    development_workflow: {}
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     
     // Setup common path mock
     mockedPath.join.mockImplementation((...paths) => paths.join('/'));
     mockedPath.dirname.mockImplementation((p) => p.split('/').slice(0, -1).join('/'));
+
+    // Setup default mocks
+    mockedFs.existsSync.mockReturnValue(true);
+    mockedFs.readFileSync.mockReturnValue('config content');
+    mockedYaml.parse.mockReturnValue(mockConfig);
   });
 
   describe('loadConfig', () => {
     it('should load and parse config file', async () => {
-      const mockConfig: ProjectConfig = {
-        project: {
-          name: 'test-project',
-          type: 'test',
-          description: 'Test Project'
-        },
-        name: 'test',
-        development_workflow: {}
-      };
-
-      mockedFs.existsSync.mockReturnValue(true);
-      mockedFs.readFileSync.mockReturnValue('config content');
-      mockedYaml.parse.mockReturnValue(mockConfig);
-
       const result = await loadConfig();
 
       expect(result).toEqual(mockConfig);
@@ -59,20 +66,6 @@ describe('Config Utilities', () => {
 
   describe('getProjectConfig', () => {
     it('should return project config', async () => {
-      const mockConfig: ProjectConfig = {
-        project: {
-          name: 'test-project',
-          type: 'test',
-          description: 'Test Project'
-        },
-        name: 'test',
-        development_workflow: {}
-      };
-
-      mockedFs.existsSync.mockReturnValue(true);
-      mockedFs.readFileSync.mockReturnValue('config content');
-      mockedYaml.parse.mockReturnValue(mockConfig);
-
       const result = await getProjectConfig();
 
       expect(result).toEqual(mockConfig);
@@ -97,18 +90,15 @@ describe('Config Utilities', () => {
         }
       };
 
-      mockedFs.existsSync.mockReturnValue(true);
       mockedFs.readFileSync.mockReturnValue('template content');
       mockedYaml.parse.mockReturnValue(mockTemplate);
       mockedYaml.stringify.mockReturnValue('stringified template');
+      mockedPath.dirname.mockReturnValue('.ai');
 
       await syncConfigWithTemplate('template.yaml');
 
       expect(mockedFs.readFileSync).toHaveBeenCalledWith('template.yaml', 'utf8');
-      expect(mockedFs.mkdirSync).toHaveBeenCalledWith(
-        expect.any(String),
-        { recursive: true }
-      );
+      expect(mockedFs.mkdirSync).toHaveBeenCalledWith('.ai', { recursive: true });
       expect(mockedYaml.stringify).toHaveBeenCalledWith(mockTemplate);
       expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
         expect.any(String),
@@ -133,21 +123,17 @@ describe('Config Utilities', () => {
         }
       };
 
-      mockedFs.existsSync.mockReturnValue(true);
       mockedFs.readFileSync.mockReturnValue('template content');
       mockedYaml.parse.mockReturnValue(mockTemplate);
       mockedYaml.stringify.mockReturnValue('stringified template');
+      mockedPath.dirname.mockReturnValue('.ai');
 
       await syncConfigWithTemplate('template.yaml');
 
-      expect(mockedFs.mkdirSync).toHaveBeenCalledWith(
-        expect.any(String),
-        { recursive: true }
-      );
+      expect(mockedFs.mkdirSync).toHaveBeenCalledWith('.ai', { recursive: true });
     });
 
     it('should handle template parsing errors', async () => {
-      mockedFs.existsSync.mockReturnValue(true);
       mockedFs.readFileSync.mockReturnValue('invalid yaml');
       mockedYaml.parse.mockImplementation(() => {
         throw new Error('Invalid YAML');
